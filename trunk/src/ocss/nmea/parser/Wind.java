@@ -2,7 +2,7 @@ package ocss.nmea.parser;
 
 import java.io.Serializable;
 
-public final class Wind implements Serializable
+public abstract class Wind implements Serializable
 {
   public double speed = 0.0;
   public int    angle = 0;
