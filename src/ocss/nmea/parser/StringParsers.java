@@ -255,9 +255,13 @@ public class StringParsers
     return temp;
   }
   
-  // AWA, AWS
+  // AWA, AWS (R), possibly TWA, TWS (T)
   public static Wind parseMWV(String data)
   {
+    final int TRUE_WIND     = 0;
+    final int APPARENT_WIND = 1;
+    int flavor = -1;
+    
     String s = data.trim();
     if (s.length() < 6)
       return null;
@@ -279,19 +283,21 @@ public class StringParsers
       else
       {
         String speed = "", angle = "";
-        if (s.indexOf("MWV,") > -1 && s.indexOf(",R,") > -1)
+        if (s.indexOf("MWV,") > -1 && s.indexOf(",R,") > -1) // Apparent
         {
+          flavor = APPARENT_WIND;
           angle = s.substring(s.indexOf("MWV,") + "MWV,".length(), s.indexOf(",R,"));        
         }
         if (s.indexOf(",R,") > -1 && s.indexOf(",N,") > -1)
         {
-          speed = s.substring(s.indexOf(",R,") + ",R,".length(), s.indexOf(",N,"));        
+          speed = s.substring(s.indexOf(",R,") + ",R,".length(), s.indexOf(",N,"));         
         }
         if (speed.trim().length() == 0 && angle.trim().length() == 0)
         {
           if (s.indexOf("MWV,") > -1 && s.indexOf(",T,") > -1)
           {
-            angle = s.substring(s.indexOf("MWV,") + "MWV,".length(), s.indexOf(",T,"));        
+            flavor = TRUE_WIND;
+            angle = s.substring(s.indexOf("MWV,") + "MWV,".length(), s.indexOf(",T,"));    // True    
           }
           if (s.indexOf(",T,") > -1 && s.indexOf(",N,") > -1)
           {
@@ -302,7 +308,12 @@ public class StringParsers
         double aws = 0d;
         try { awa = parseNMEAFloat(angle); } catch (Exception ex) {}
         try { aws = parseNMEADouble(speed); } catch (Exception ex) {}
-        aw = new Wind(Math.round(awa), aws);
+        if (flavor == APPARENT_WIND)
+          aw = new ApparentWind(Math.round(awa), aws);
+        else if (flavor == TRUE_WIND)
+          aw = new TrueWind(Math.round(awa), aws);
+        else
+          System.out.println("UNKNOWN wind type!");
       }
     }
     catch (Exception e)
@@ -364,7 +375,7 @@ public class StringParsers
     Wind aw = null;
     try
     {
-      if (s.indexOf("K*") == -1) // Data invalid
+      if (false && s.indexOf("K*") == -1) // Data invalid // Watafok???
         return aw;
       else
       {
@@ -387,7 +398,7 @@ public class StringParsers
         try { wa = Integer.parseInt(angle); } catch (Exception ex) {}
         if (side.equals("L"))
           wa = 360 - wa;
-        aw = new Wind(wa, ws);
+        aw = new ApparentWind(wa, ws);
       }
     }
     catch (Exception e)
@@ -963,6 +974,58 @@ public class StringParsers
     return sr;
   }
   
+  private final static double METERS_TO_FEET    = 3.28083;
+  // Depth 
+  public static float parseDPT(String data, short unit)
+  {
+    String s = data.trim();
+    if (s.length() < 6)
+      return -1F;
+    /* Structure is 
+     *  $xxDPT,XX.XX,XX.XX,XX.XX*hh<0D><0A>
+     *         |     |     |    
+     *         |     |     |    
+     *         |     |     |    
+     *         |     |     |    
+     *         |     |     Max depth in meters
+     *         |     offset
+     *         Depth in meters
+     */
+    float feet    = 0.0F;
+    float meters  = 0.0F;
+    float fathoms = 0.0F;
+    String[] array = data.split(",");
+    try
+    {
+      meters = parseNMEAFloat(array[1]);
+      try 
+      {
+        String strOffset = array[2].trim();
+        if (strOffset.startsWith("+"))
+          strOffset = strOffset.substring(1);
+        float offset = parseNMEAFloat(strOffset);
+        meters += offset;
+      } 
+      catch (Exception ex) {}
+      feet   = meters * (float)METERS_TO_FEET;
+      fathoms = feet / 6F;
+    }
+    catch (Exception e)
+    {
+      System.err.println("parseDPT For " + s + ", " + e.toString());
+  //  e.printStackTrace();
+    }
+
+    if (unit == DEPTH_IN_FEET)
+      return feet;
+    else if (unit == DEPTH_IN_METERS)
+      return meters;
+    else if (unit == DEPTH_IN_FATHOMS)
+      return fathoms;
+    else
+      return meters;
+  }
+  
   // Depth Below Transducer
   public static float parseDBT(String data, short unit)
   {
@@ -1246,5 +1309,13 @@ public class StringParsers
     str = "$IIVTG,,T,295,M,0.0,N,,*02";
     og = parseVTG(str);
     System.out.println("Over Ground:" + og);
+    
+    str = "$IIDPT,007.4,+1.0,*43";
+    float depth = parseDPT(str, DEPTH_IN_METERS);
+    System.out.println("Depth:" + depth);
+    
+    str = "$IIVWR,024,R,08.4,N,,,,*6B";
+    w = StringParsers.parseVWR(str);
+    System.out.println("Done");
   }    
 }
