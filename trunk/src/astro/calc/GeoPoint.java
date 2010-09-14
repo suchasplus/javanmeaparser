@@ -1,8 +1,11 @@
 package astro.calc;
 
+import java.io.Serializable;
+
 import user.util.GeomUtil;
 
 public final class GeoPoint
+        implements Serializable
 {
   double latitude;
   double longitude;
