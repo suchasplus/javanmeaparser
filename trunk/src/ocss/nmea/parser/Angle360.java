@@ -6,9 +6,9 @@ import java.text.DecimalFormat;
 
 public class Angle360 implements NMEADoubleValueHolder, Serializable
 {
-  private double angle = 0d;
-  private static final String UNIT = "\272";
-  private static final DecimalFormat FMT = new DecimalFormat("000.0");
+  protected double angle = 0d;
+  protected static final String UNIT = "\272";
+  protected static final DecimalFormat FMT = new DecimalFormat("000.0");
 
   public Angle360()
   {
