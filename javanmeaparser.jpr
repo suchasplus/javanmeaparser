@@ -149,7 +149,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/gui/img/"/>
                <list n="pattern-filters">
                   <string v="+zoomout.png"/>
                   <string v="+zoomout.gif"/>
@@ -259,7 +258,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/gui/right/"/>
                <list n="pattern-filters">
                   <string v="+zoomshrink.gif"/>
                   <string v="+zoomexpand.gif"/>
@@ -290,7 +288,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/gui/toolbar/controlpanels/img/"/>
                <list n="pattern-filters">
                   <string v="+zoomout.png"/>
                   <string v="+zoomout.gif"/>
@@ -333,7 +330,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/gui/toolbar/controlpanels/station/resources/"/>
                <list n="pattern-filters">
                   <string v="+ds-digit.ttf"/>
                   <string v="+ds-digii.ttf"/>
@@ -504,7 +500,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/gui/util/tree/"/>
                <list n="pattern-filters">
                   <string v="+up_arrow.gif"/>
                   <string v="+script.png"/>
@@ -616,7 +611,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/chartview/util/local/"/>
                <list n="pattern-filters">
                   <string v="+WeatherAssistantResourceBundle.java"/>
                   <string v="+wa.properties"/>
@@ -671,7 +665,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/jgrib/examples/config/"/>
                <list n="pattern-filters">
                   <string v="+log4j.dtd"/>
                   <string v="+jgrib_log4j.xml"/>
@@ -748,7 +741,6 @@
                </list>
             </hash>
             <hash>
-               <url n="content-folder-url" path="../WeatherWizard/src/main/splash/"/>
                <list n="pattern-filters">
                   <string v="+SplashWindow.java"/>
                   <string v="+Splasher.java"/>
@@ -768,6 +760,14 @@
                </list>
                <list n="url-path">
                   <url path="../WeatherWizard/src/"/>
+               </list>
+            </hash>
+            <hash>
+               <list n="pattern-filters">
+                  <string v="+**"/>
+               </list>
+               <list n="url-path">
+                  <url path="../CoreUtilities/src/"/>
                </list>
             </hash>
          </list>
@@ -801,10 +801,18 @@
             <url n="id" path="../../../../JDev10.1.3.2/jdev/system/oracle.jdeveloper.10.1.3.40.47/CommAPI.library"/>
             <value n="isJDK" v="false"/>
          </hash>
+         <hash>
+            <value n="id" v="Oracle XML Parser v2"/>
+            <value n="isJDK" v="false"/>
+         </hash>
       </list>
       <list n="libraryReferences">
          <hash>
             <url n="id" path="../../../../JDev10.1.3.2/jdev/system/oracle.jdeveloper.10.1.3.40.47/CommAPI.library"/>
+            <value n="isJDK" v="false"/>
+         </hash>
+         <hash>
+            <value n="id" v="Oracle XML Parser v2"/>
             <value n="isJDK" v="false"/>
          </hash>
       </list>
