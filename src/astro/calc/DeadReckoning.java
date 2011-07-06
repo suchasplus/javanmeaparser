@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import user.util.GeomUtil;
 
 /**
- * Dead Reckoning
+ * Dead Reckoning for Celestial Altitude
  * 
  * Call sequence:
  * <pre>
