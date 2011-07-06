@@ -6,9 +6,9 @@ import java.text.DecimalFormat;
 
 public class Speed implements NMEADoubleValueHolder, Serializable
 {
-  private double speed = 0d;
-  private final static String UNIT = "kts"; // TODO Localize
-  private final static DecimalFormat FMT = new DecimalFormat("00.00");
+  protected double speed = -Double.MAX_VALUE;
+  protected final static String UNIT = "kts"; // TODO Localize
+  protected final static DecimalFormat FMT = new DecimalFormat("00.00");
   
   public Speed()
   {

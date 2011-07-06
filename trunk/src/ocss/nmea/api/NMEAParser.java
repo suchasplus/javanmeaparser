@@ -67,9 +67,9 @@ public final class NMEAParser extends Thread
   public void setNmeaPrefix(String s)
   { this.nmeaPrefix = s; }
 
-  public void setEOS(String str)
+  public void setEOS(String str) // TODO Static ?
   { NMEA_EOS = str; }
-  public String getEOS()
+  public static String getEOS()
   { return NMEA_EOS; }
   
   public String[] getNmeaSentence()
@@ -126,7 +126,7 @@ public final class NMEAParser extends Thread
       beginIdx = nmeaStream.indexOf("$");
     }
 
-    if (beginIdx== -1)
+    if (beginIdx == -1)
       return false;
     else
     {
