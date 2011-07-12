@@ -17,12 +17,11 @@ public class StringParsers
    * 
    * GSA GPS DOP and Active satellites
     $GPGSA,A,2,,,,,,20,23,,,32,,,5.4,5.4,*1F
-   * HDT Heading True
    * MTA Air Temperature
    * MDW Surface Wind, direction and velocity
+   * VDR Set and Drift
    * VPW Device measured velocity parallel true wind
    * VWT True Wind relative bearing and velocity
-   * ZDA Time and Date
    * ZLZ Time of Day
    */
 
@@ -32,7 +31,6 @@ public class StringParsers
     String s = data.trim();
     if (s.length() < 6)
       return gsvMap;
-    s = s.substring(0, s.length() - 3); // 3 = *XX, checksum
 //  System.out.println("String [" + s + "]");
     /* Structure is $GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74
      *                     | | |  |  |  |   |  |            |            |  
@@ -49,7 +47,7 @@ public class StringParsers
      */
     final int DATA_OFFSET = 3; // num of mess, mess num, Total num of SVs.
     final int NB_DATA     = 4; // SV num, elev, Z, SNR
-    String sa[] = s.split(",");
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
     try
     {
       int nbMess = Integer.parseInt(sa[1]); // Not used for now, preferred nbSVinView
@@ -84,6 +82,15 @@ public class StringParsers
   
   public static ArrayList<Object> parseGGA(String data)
   {
+    final int KEY_POS = 0;
+    final int UTC_POS = 1;
+    final int LAT_POS = 2;
+    final int LAT_SGN_POS = 3;
+    final int LONG_POS = 4;
+    final int LONG_SGN_POS = 5;
+    final int GPS_Q_POS = 6;
+    final int NBSAT_POS = 7;
+    
     ArrayList<Object> al = null;
     String s = data.trim();
     if (s.length() < 6)
@@ -98,36 +105,36 @@ public class StringParsers
      *         |         Latitude
      *         UTC of position
      */    
-    String sa[] = s.split(",");
+    String sa[] = s.substring(0, s.indexOf("*")).split(",");
     double utc = 0L, lat = 0L, lng = 0L;
     int nbsat = 0;
     try 
-    { utc = parseNMEADouble(sa[1]); } 
+    { utc = parseNMEADouble(sa[UTC_POS]); } 
     catch (Exception ex) {}
     
     try 
     { 
-      double l = parseNMEADouble(sa[2]);
+      double l = parseNMEADouble(sa[LAT_POS]);
       int intL = (int)l/100;
       double m = ((l/100.0)-intL) * 100.0;
       m *= (100.0/60.0);
       lat = intL + (m/100.0);
-      if ("S".equals(sa[3]))
+      if ("S".equals(sa[LAT_SGN_POS]))
         lat = -lat;
     } 
     catch (Exception ex) {}
     try 
     { 
-      double g = parseNMEADouble(sa[4]);
+      double g = parseNMEADouble(sa[LONG_POS]);
       int intG = (int)g/100;
       double m = ((g/100.0)-intG) * 100.0;
       m *= (100.0/60.0);
       lng = intG + (m/100.0);
-      if ("W".equals(sa[5]))
+      if ("W".equals(sa[LONG_SGN_POS]))
         lng = -lng;
     } 
     catch (Exception ex) {}
-    try { nbsat = Integer.parseInt(sa[7]); } catch (Exception ex) {}
+    try { nbsat = Integer.parseInt(sa[NBSAT_POS]); } catch (Exception ex) {}
     
 //  System.out.println("UTC:" + utc + ", lat:" + lat + ", lng:" + lng + ", nbsat:" + nbsat); 
     int h = (int)(utc / 10000);
@@ -175,7 +182,7 @@ public class StringParsers
 
     try
     {
-      String[] nmeaElements = data.split(",");
+      String[] nmeaElements = data.substring(0, data.indexOf("*")).split(",");
       try { speed = parseNMEADouble(nmeaElements[5]); } catch (Exception ex) {}
       try { hdm   = parseNMEADouble(nmeaElements[3]); } catch (Exception ex) {}
       try { hdg   = parseNMEADouble(nmeaElements[1]); } catch (Exception ex) {}
@@ -217,7 +224,7 @@ public class StringParsers
      */
     try
     {
-      String[] nmeaElements = data.split(",");
+      String[] nmeaElements = data.substring(0, data.indexOf("*")).split(",");
       cumulative = parseNMEADouble(nmeaElements[1]);
       sinceReset = parseNMEADouble(nmeaElements[3]);
     }
@@ -242,7 +249,7 @@ public class StringParsers
     double temp = 0d;
     try
     {
-      String[] nmeaElements = data.split(",");
+      String[] nmeaElements = data.substring(0, data.indexOf("*")).split(",");
       String _s = nmeaElements[1];
       if (_s.startsWith("+")) _s = _s.substring(1);
       temp = parseNMEADouble(_s);
@@ -627,9 +634,49 @@ public class StringParsers
     { result = "-"; }
     return result;
   }
+  
+  public static int parseHDT(String data)
+  {
+    final int KEY_POS = 0;
+    final int HDG_POS = 1;
+    final int MT_POS  = 2;
+    String s = data.trim();
+    if (s.length() < 6)
+      return -1;
+    /* Structure is 
+     *  $aaHDT,xxx,M*hh(CR)(LF)
+     *         |   |   
+     *         |   Magnetic, True
+     *         Heading in degrees
+     */
+    int hdg = 0;
+    
+    String[] elmts = data.substring(0, data.indexOf("*")).split(",");
+    try
+    {
+      if (elmts[KEY_POS].indexOf("HDT") > -1)
+      {
+        if ("T".equals(elmts[MT_POS]))
+          hdg = Math.round(parseNMEAFloat(elmts[HDG_POS]));
+        else
+          throw new RuntimeException("Wrong type [" + elmts[HDG_POS] + "] in parseHDT.");
+      }
+      else
+        System.err.println("Wrong chain in parseHDT [" + data + "]");
+    }
+    catch (Exception e)
+    {
+      System.err.println("parseHDT for " + s + ", " + e.toString());
+//    e.printStackTrace();
+    }
+    return hdg;
+  }
   // Heading (Mag.)
   public static int parseHDM(String data)
   {
+    final int KEY_POS = 0;
+    final int HDG_POS = 1;
+    final int MT_POS  = 2;
     String s = data.trim();
     if (s.length() < 6)
       return -1;
@@ -640,20 +687,19 @@ public class StringParsers
      *         Heading in degrees
      */
     int hdg = 0;
-    String str = "";
+    
+    String[] elmts = data.substring(0, data.indexOf("*")).split(",");
     try
     {
-      if (s.indexOf("HDM,") > -1)
+      if (elmts[KEY_POS].indexOf("HDM") > -1)
       {
-        str = s.substring(s.indexOf("HDM,") + "HDM,".length());
-        if (str.indexOf(",") > -1)
-        {
-          str = str.substring(0, str.indexOf(","));
-          if (str.endsWith("."))
-            str = str.substring(0, str.length() - 1);
-          hdg = Math.round(parseNMEAFloat(str));
-        }
+        if ("M".equals(elmts[MT_POS]))
+          hdg = Math.round(parseNMEAFloat(elmts[HDG_POS]));
+        else
+          throw new RuntimeException("Wrong type [" + elmts[HDG_POS] + "] in parseHDM.");
       }
+      else
+        System.err.println("Wrong chain in parseHDM [" + data + "]");
     }
     catch (Exception e)
     {
@@ -695,7 +741,7 @@ public class StringParsers
      */
     try
     {
-      String[] nmeaElements = data.split(",");
+      String[] nmeaElements = data.substring(0, data.indexOf("*")).split(",");
       try { hdg = parseNMEADouble(nmeaElements[1]); } catch (Exception ex) {}
       try { dev = parseNMEADouble(nmeaElements[2]); } catch (Exception ex) {}
       if ("W".equals(nmeaElements[3]))
@@ -745,13 +791,13 @@ public class StringParsers
     String s = str.trim();
     if (s.length() < 6)
       return null;
-    s = s.substring(0, s.indexOf("*"));
+    
     try
     {
       if (s.indexOf("RMB,") > -1)
       {
         rmb = new RMB();
-        String[] data = s.split(",");
+        String[] data = str.substring(0, str.indexOf("*")).split(",");
         if (data[1].equals("V")) // Void
           return null;
         double xte = 0d;
@@ -818,7 +864,7 @@ public class StringParsers
       if (s.indexOf("RMC,") > -1)
       {
         rmc = new RMC();
-        String[] data = s.split(",");
+        String[] data = str.substring(0, str.indexOf("*")).split(",");
         if (data[2].equals("V")) // Void
           return null;
         if (data[1].length() > 0) // Time and Date
@@ -905,6 +951,7 @@ public class StringParsers
     try { ret = parseRMC(data).toString(); } catch (Exception ignore){} 
     return ret; 
   }
+  
   public static String getLatFromRMC(String s)
   {
     String result = "";
@@ -953,7 +1000,28 @@ public class StringParsers
     { result = "-"; }
     return result;
   }
-
+  
+  public static UTC parseZDA(String str)
+  {
+    /* Structure is 
+     * $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
+     * $GPZDA,201530.00,04,07,2002,00,00*60    
+     *        |         |  |  |    |  |
+     *        |         |  |  |    |  local zone minutes 0..59
+     *        |         |  |  |    local zone hours -13..13
+     *        |         |  |  year
+     *        |         |  month
+     *        |         day
+     *        HrMinSec(UTC)
+     */
+    String[] data = str.substring(0, str.indexOf("*")).split(",");
+    UTC utc = new UTC(Integer.parseInt(data[1].substring(0, 2)),
+                      Integer.parseInt(data[1].substring(2, 4)),
+                      Float.parseFloat(data[1].substring(4)));
+    
+    return utc;
+  }
+  
   public static final short DEPTH_IN_FEET    = 0;
   public static final short DEPTH_IN_METERS  = 1;
   public static final short DEPTH_IN_FATHOMS = 2;
@@ -984,9 +1052,6 @@ public class StringParsers
     /* Structure is 
      *  $xxDPT,XX.XX,XX.XX,XX.XX*hh<0D><0A>
      *         |     |     |    
-     *         |     |     |    
-     *         |     |     |    
-     *         |     |     |    
      *         |     |     Max depth in meters
      *         |     offset
      *         Depth in meters
@@ -994,7 +1059,7 @@ public class StringParsers
     float feet    = 0.0F;
     float meters  = 0.0F;
     float fathoms = 0.0F;
-    String[] array = data.split(",");
+    String[] array = data.substring(0, data.indexOf("*")).split(",");
     try
     {
       meters = parseNMEAFloat(array[1]);
@@ -1161,9 +1226,11 @@ public class StringParsers
   }
   
   /**
-   * Parses strings like "2006-05-05T17:35:48.000"
+   * Parses strings like "2006-05-05T17:35:48.000" + "Z" or UTC Offset like "-10:00"
    *                      01234567890123456789012
    *                      1         2         3
+   *                      
+   * Return a UTC date                      
    */
   public static long durationToDate(String duration)
     throws RuntimeException
@@ -1174,6 +1241,28 @@ public class StringParsers
     String hh   = duration.substring(11, 13);
     String mi   = duration.substring(14, 16);
     String ss   = duration.substring(17, 19);
+    
+    float utcOffset = 0F;
+    
+    String trailer = duration.substring(19);
+    if (trailer.indexOf("+") >= 0 ||
+        trailer.indexOf("-") >= 0)
+    {
+//    System.out.println(trailer);
+      if (trailer.indexOf("+") >= 0)
+        trailer = trailer.substring(trailer.indexOf("+") + 1);
+      if (trailer.indexOf("-") >= 0)
+        trailer = trailer.substring(trailer.indexOf("-"));
+      if (trailer.indexOf(":") > -1)
+      {
+        String hours = trailer.substring(0, trailer.indexOf(":"));
+        String mins  = trailer.substring(trailer.indexOf(":") + 1);
+        utcOffset = (float)Integer.parseInt(hours) + (float)(Integer.parseInt(mins) / 60f);
+      }
+      else
+        utcOffset = Float.parseFloat(trailer);
+    }
+//  System.out.println("UTC Offset:" + utcOffset);
 
     Calendar calendar = Calendar.getInstance();
     try
@@ -1184,7 +1273,7 @@ public class StringParsers
     {
       throw new RuntimeException("durationToDate, for [" + duration + "] : " + nfe.getMessage());
     }
-    return calendar.getTimeInMillis();
+    return calendar.getTimeInMillis() - (long)(utcOffset * (3600 * 1000));
   }
 
   public static String durationToExcel(String duration)
@@ -1211,6 +1300,22 @@ public class StringParsers
   public static void main(String[] args)
   {
     String str = "";
+    
+    str = "2006-05-05T17:35:48.000Z";
+    long ld = durationToDate(str);
+    System.out.println(str + " => " + new Date(ld));
+    str = "2006-05-05T17:35:48Z";
+    ld = durationToDate(str);
+    System.out.println(str + " => " + new Date(ld));
+    str = "2006-05-05T17:35:48-10:00";
+    ld = durationToDate(str);
+    System.out.println(str + " => " + new Date(ld));
+    str = "2006-05-05T17:35:48+10:00";
+    ld = durationToDate(str);
+    System.out.println(str + " => " + new Date(ld));
+    str = "2006-05-05T17:35:48.000-09:30";
+    ld = durationToDate(str);
+    System.out.println(str + " => " + new Date(ld));
     
     str = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74";
     HashMap<Integer, SVData> hm = parseGSV(str);
@@ -1316,6 +1421,18 @@ public class StringParsers
     
     str = "$IIVWR,024,R,08.4,N,,,,*6B";
     w = StringParsers.parseVWR(str);
+    
+    str = "$IIHDM,125,M*3A";
+    int h = parseHDM(str);
+    System.out.println("HDM:" + h);
+    str = "$IIHDT,131,T*3F";
+    h = parseHDT(str);
+    System.out.println("HDT:" + h);
+    
+    str = "$GPZDA,201530.00,04,07,2002,00,00*60";
+    utc = parseZDA(str);
+    System.out.println("UTC Time: " + utc.toString());
+    
     System.out.println("Done");
   }    
 }
