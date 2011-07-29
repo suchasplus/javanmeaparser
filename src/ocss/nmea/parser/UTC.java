@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import java.text.DecimalFormat;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 public class UTC implements Serializable
 {
   private int h, m;
@@ -28,6 +32,15 @@ public class UTC implements Serializable
   public float getS()
   {
     return s;
+  }
+  
+  public Date getDate()
+  {
+    Calendar cal = GregorianCalendar.getInstance();
+    cal.set(Calendar.HOUR_OF_DAY, this.getH());
+    cal.set(Calendar.MINUTE, this.getM());
+    cal.set(Calendar.SECOND, (int)this.getS());
+    return cal.getTime();
   }
   
   private DecimalFormat df2 = new DecimalFormat("00");
