@@ -14,4 +14,7 @@ public abstract class NMEAListener implements EventListener
   public void stopReading(NMEAEvent e)
   {
   }
+  public void fireError(Throwable t)
+  {    
+  }
 }

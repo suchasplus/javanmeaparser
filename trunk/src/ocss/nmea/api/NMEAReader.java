@@ -79,11 +79,20 @@ public abstract class NMEAReader extends Thread
    * Customize, overwrite this class to get plugged on the right datasource
    * like a Serial Port for example.
    */
-  public abstract void read();
+  public abstract void read() throws Exception;
 
   public void run()
   {
     System.out.println(this.getClass().getName() + ":Reader Running");
-    read();
+    try { read(); }
+    catch (Exception ex)
+    {
+      for (int i=0; i<NMEAListeners.size(); i++)
+      {
+        NMEAListener l = NMEAListeners.get(i);
+        l.fireError(ex);
+      }      
+      throw new RuntimeException(ex);
+    }
   }
 }
