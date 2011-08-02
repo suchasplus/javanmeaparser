@@ -458,6 +458,9 @@ public class StringParsers
               |   | |  |  |___|SOG, knots
               |   | |__|COG, mag
               |___|COG, true
+
+       $IIVTG,17.,T,M,7.9,N,,*36 // B&G does this...
+       $IIVTG,,T,338.,M,N,,*28   // or this...
        $IIVTG,054.7,T,034.4,M,005.5,N,010.2,K,A*XX
               054.7,T      True track made good
               034.4,M      Magnetic track made good
@@ -472,19 +475,34 @@ public class StringParsers
       else
       {
         String speed = "", angle = "";
-        int firstCommaIndex = s.indexOf(",");
-        int secondCommaIndex = s.indexOf(",", firstCommaIndex + 1);
-        int thirdCommaIndex = s.indexOf(",", secondCommaIndex + 1);
-        int fourthCommaIndex = s.indexOf(",", thirdCommaIndex + 1);
-        int fifthCommaIndex = s.indexOf(",", fourthCommaIndex + 1);
-        int sixthCommaIndex = s.indexOf(",", fifthCommaIndex + 1);
-        if (firstCommaIndex > -1 && secondCommaIndex > -1)
-          angle = s.substring(firstCommaIndex + 1, secondCommaIndex);    
-        if (angle.trim().length() == 0) // Try Mag.
-          angle = s.substring(thirdCommaIndex + 1, fourthCommaIndex);    
-        if (fifthCommaIndex > -1 && sixthCommaIndex > -1)
-          speed = s.substring(fifthCommaIndex + 1, sixthCommaIndex);     
+        String[] sa = s.split(",");
+        
+        int tIndex = -1;
+        for (int i=0; i<sa.length; i++)
+        {
+          if ("T".equals(sa[i]))
+          {
+            tIndex = i;
+            break;
+          }
+        }
+        int nIndex = -1;
+        for (int i=0; i<sa.length; i++)
+        {
+          if ("N".equals(sa[i]))
+          {
+            nIndex = i;
+            break;
+          }
+        }
+        
+        angle = sa[tIndex - 1];
+        speed = sa[nIndex - 1];
+        if (speed.endsWith("."))
+          speed += "0";
         double sog = parseNMEADouble(speed);
+        if (angle.endsWith("."))
+          angle += "0";
         int cog = (int)Math.round(parseNMEADouble(angle));
         og = new OverGround(sog, cog);
       }
@@ -1432,6 +1450,10 @@ public class StringParsers
     str = "$GPZDA,201530.00,04,07,2002,00,00*60";
     utc = parseZDA(str);
     System.out.println("UTC Time: " + utc.toString());
+    
+    str = "$IIVTG,17.,T,M,7.9,N,,*36";
+    og = parseVTG(str);
+    System.out.println("Over Ground:" + og);
     
     System.out.println("Done");
   }    
