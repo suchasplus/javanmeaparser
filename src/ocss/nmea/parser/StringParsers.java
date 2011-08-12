@@ -15,8 +15,6 @@ public class StringParsers
 {
   /* TASK Implement the following:
    * 
-   * GSA GPS DOP and Active satellites
-    $GPGSA,A,2,,,,,,20,23,,,32,,,5.4,5.4,*1F
    * MTA Air Temperature
    * MDW Surface Wind, direction and velocity
    * VDR Set and Drift
@@ -98,9 +96,16 @@ public class StringParsers
     /* Structure is 
      *  $GPGGA,014457,3739.853,N,12222.821,W,1,03,5.4,1.1,M,-28.2,M,,*7E         
      *  $aaGGA,hhmmss.ss,llll.ll,a,gggg.gg,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh(CR)(LF)
-     *         |         |         |         | |
-     *         |         |         |         | number of satellites in use 00-12
-     *         |         |         |         GPS quality indicator
+     *         |         |         |         | |  |   |   | |   | |   |
+     *         |         |         |         | |  |   |   | |   | |   Differential reference station ID
+     *         |         |         |         | |  |   |   | |   | Age of differential GPS data (seconds) 
+     *         |         |         |         | |  |   |   | |   Unit of geodial separation, meters
+     *         |         |         |         | |  |   |   | Geodial separation
+     *         |         |         |         | |  |   |   Unit of antenna altitude, meters
+     *         |         |         |         | |  |   Antenna altitude above sea level
+     *         |         |         |         | |  Horizontal dilution of precision
+     *         |         |         |         | number of satellites in use 00-12 (in use, not in view!)
+     *         |         |         |         GPS quality indicator (0:invalid, 1:GPS fix, 2:DGPS fix)
      *         |         |         Longitude
      *         |         Latitude
      *         UTC of position
@@ -152,6 +157,56 @@ public class StringParsers
     
     return al;
   }
+  
+  
+  public static GSA parseGSA(String data)
+  {
+    /*
+     * $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
+     *        | | |                           |   |   |
+     *        | | |                           |   |   VDOP
+     *        | | |                           |   HDOP
+     *        | | |                           PDOP (dilution of precision). No unit; the smaller the better.
+     *        | | IDs of the SVs used in fix (up to 12)
+     *        | Mode: 1=Fix not available, 2=2D, 3=3D
+     *        Mode: M=Manual, forced to operate in 2D or 3D
+     *              A=Automatic, 3D/2D
+     */
+    GSA gsa = new GSA();
+    String[] elements = data.substring(0, data.indexOf("*")).split(",");
+    if (elements.length >= 2)
+    {
+      if ("M".equals(elements[1]))
+        gsa.setMode1(GSA.ModeOne.Manual);
+      if ("A".equals(elements[1]))
+        gsa.setMode1(GSA.ModeOne.Auto);
+    }
+    if (elements.length >= 3)
+    {
+      if ("1".equals(elements[2]))
+        gsa.setMode2(GSA.ModeTwo.NoFix);
+      if ("2".equals(elements[2]))
+        gsa.setMode2(GSA.ModeTwo.TwoD);
+      if ("3".equals(elements[2]))
+        gsa.setMode2(GSA.ModeTwo.ThreeD);
+    }
+    for (int i=3; i<15; i++)
+    {
+      if (elements[i].trim().length() > 0)
+      {
+        int sv = Integer.parseInt(elements[i]);
+        gsa.getSvArray().add(sv);
+      }
+    }
+    if (elements.length >= 16)
+      gsa.setPDOP(Float.parseFloat(elements[15]));
+    if (elements.length >= 17)
+      gsa.setHDOP(Float.parseFloat(elements[16]));
+    if (elements.length >= 18)
+      gsa.setVDOP(Float.parseFloat(elements[17]));
+    
+    return gsa;
+  }  
   
   public final static int BSP_in_VHW = 0;
   public final static int HDM_in_VHW = 1;
@@ -858,7 +913,7 @@ public class StringParsers
   {
     RMC rmc = null;
     String s = str.trim();
-    if (s.length() < 6)
+    if (s.length() < 6 || s.indexOf("*") < 0)
       return null;
     s = s.substring(0, s.indexOf("*"));
     /* Structure is 
@@ -1017,6 +1072,34 @@ public class StringParsers
     catch (Exception ex)
     { result = "-"; }
     return result;
+  }
+  
+  public final static int MESS_NUM = 0;
+  public final static int NB_MESS  = 1;
+  /**
+   * For GSV, returns the message number, and the total number of messages to expect.
+   * 
+   * @param gsvString
+   * @return
+   */
+  public static int[] getMessNum(String gsvString)
+  {
+    int mn  = -1;
+    int nbm = -1;
+    if (validCheckSum(gsvString))
+    {
+      String[] elmt = gsvString.trim().split(",");
+      try
+      {
+        nbm = Integer.parseInt(elmt[1]);
+        mn  = Integer.parseInt(elmt[2]);
+      }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
+    }
+    return new int[] { mn, nbm };
   }
   
   public static UTC parseZDA(String str)
@@ -1454,6 +1537,19 @@ public class StringParsers
     str = "$IIVTG,17.,T,M,7.9,N,,*36";
     og = parseVTG(str);
     System.out.println("Over Ground:" + og);
+    
+    str = "$GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35";
+    GSA gsa = parseGSA(str);
+    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
+    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
+    System.out.println("- Sat in View:" + gsa.getSvArray().size());
+    str = "$GPGSA,A,2,,,,,,20,23,,,32,,,5.4,5.4,*1F";
+    gsa = parseGSA(str);
+    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
+    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
+    System.out.println("- Sat in View:" + gsa.getSvArray().size());
+    
+    System.out.println("Test:" + GSA.ModeOne.Auto);
     
     System.out.println("Done");
   }    
