@@ -25,8 +25,11 @@ public final class NMEAParser extends Thread
 
   private String nmeaStream = "";
   private final static long MAX_STREAM_SIZE = 2048;
-  private static String NMEA_EOS = "\r\n";
-//private final static String NMEA_EOS = "\n";
+  public final static String WINDOWS_NMEA_EOS = "\r\n";
+  public final static String LINUX_NMEA_EOS = "\n";
+  
+  private static String NMEA_EOS = WINDOWS_NMEA_EOS;
+  
   private transient ArrayList<NMEAListener> NMEAListeners = null; // new ArrayList(2);
 
   NMEAParser instance = null;
@@ -70,7 +73,12 @@ public final class NMEAParser extends Thread
   public void setEOS(String str) // TODO Static ?
   { NMEA_EOS = str; }
   public static String getEOS()
-  { return NMEA_EOS; }
+  { 
+    NMEA_EOS = WINDOWS_NMEA_EOS;
+    if (System.getProperty("os.name").toUpperCase().contains("LINUX"))
+      NMEA_EOS = LINUX_NMEA_EOS;
+    return NMEA_EOS; 
+  }
   
   public String[] getNmeaSentence()
   { return this.nmeaSentence; }
