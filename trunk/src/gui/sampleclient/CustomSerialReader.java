@@ -2,25 +2,25 @@ package gui.sampleclient;
 
 import java.io.IOException;
 
-import javax.comm.SerialPortEvent;
+import gnu.io.SerialPortEvent;
 
 import ocss.nmea.api.NMEAReader;
 import ocss.nmea.api.NMEAEvent;
 import java.util.ArrayList;
 
-import javax.comm.PortInUseException;
-import javax.comm.NoSuchPortException;
-import javax.comm.CommPort;
-import javax.comm.UnsupportedCommOperationException;
-import javax.comm.CommPortIdentifier;
-import javax.comm.SerialPort;
+import gnu.io.PortInUseException;
+import gnu.io.NoSuchPortException;
+import gnu.io.CommPort;
+import gnu.io.UnsupportedCommOperationException;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
 import java.io.InputStream;
 import java.util.Enumeration;
 
 import java.util.TooManyListenersException;
 
-import javax.comm.CommPortOwnershipListener;
-import javax.comm.SerialPortEventListener;
+import gnu.io.CommPortOwnershipListener;
+import gnu.io.SerialPortEventListener;
 
 import ocss.nmea.api.NMEAListener;
 
@@ -55,7 +55,7 @@ public class CustomSerialReader
 
   public void read()
   {
-    System.out.println("From " + this.getClass().getName() + " Reading Serial Port " + comPort);
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println("From " + this.getClass().getName() + " Reading Serial Port " + comPort);
     super.enableReading();
     // Opening Serial port COM1
     Enumeration enumeration = CommPortIdentifier.getPortIdentifiers();
