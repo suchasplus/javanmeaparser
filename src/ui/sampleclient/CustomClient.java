@@ -46,11 +46,8 @@ public class CustomClient extends NMEAClient
   {
     if (customClient != null)
     {
-      for (int i=0; i< customClient.getListeners().size(); i++)
-      {
-        NMEAListener l = (NMEAListener)customClient.getListeners().get(i);
+      for (NMEAListener l : customClient.getListeners())
         l.stopReading(new NMEAEvent(this));
-      }
     }
   }
 }
