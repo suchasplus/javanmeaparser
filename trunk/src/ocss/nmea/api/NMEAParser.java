@@ -39,7 +39,7 @@ public final class NMEAParser extends Thread
    
   public NMEAParser(ArrayList<NMEAListener> al)
   {      
-    System.out.println(this.getClass().getName() + ":Creating parser");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Creating parser");
     instance = this;
     NMEAListeners = al;
     this.addNMEAListener(new NMEAListener()
@@ -216,6 +216,7 @@ public final class NMEAParser extends Thread
 
   public void run()
   {
-    System.out.println(this.getClass().getName() + ":Parser Running");
+    if (System.getProperty("verbose", "false").equals("true"))
+      System.out.println(this.getClass().getName() + ":Parser Running");
   }
 }
