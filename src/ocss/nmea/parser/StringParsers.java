@@ -51,7 +51,7 @@ public class StringParsers
       int nbMess = Integer.parseInt(sa[1]); // Not used for now, preferred nbSVinView
       int messNum = Integer.parseInt(sa[2]);
       int nbSVinView = Integer.parseInt(sa[3]);
-      if (messNum == 1)
+      if (messNum == 1) // Reset
       {
         gsvMap = new HashMap<Integer, SVData>(nbSVinView);
       }
