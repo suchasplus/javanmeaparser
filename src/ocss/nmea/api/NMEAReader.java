@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public abstract class NMEAReader extends Thread
 {
-  private transient ArrayList<NMEAListener> NMEAListeners = null; // new ArrayList(2);
+  private ArrayList<NMEAListener> NMEAListeners = null; // new ArrayList(2);
 
   protected boolean goRead = true;
     
@@ -22,7 +22,7 @@ public abstract class NMEAReader extends Thread
   
   public NMEAReader(ArrayList<NMEAListener> al)
   {
-    System.out.println(this.getClass().getName() + ":Creating reader");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Creating reader");
     NMEAListeners = al;
     this.addNMEAListener(new NMEAListener()
       {
@@ -83,7 +83,7 @@ public abstract class NMEAReader extends Thread
 
   public void run()
   {
-    System.out.println(this.getClass().getName() + ":Reader Running");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Reader Running");
     try { read(); }
     catch (Exception ex)
     {
