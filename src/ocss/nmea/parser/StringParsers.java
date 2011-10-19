@@ -662,6 +662,9 @@ public class StringParsers
           int mn = (int)((utc - (10000 * h)) / 100);
           float sec = (float)(utc % 100f);
           Calendar local = new GregorianCalendar();
+          local.set(Calendar.YEAR, 1970);
+          local.set(Calendar.MONDAY, Calendar.JANUARY);
+          local.set(Calendar.DAY_OF_MONTH, 1);
           local.set(Calendar.HOUR_OF_DAY, h);  
           local.set(Calendar.MINUTE, mn);
           local.set(Calendar.SECOND, (int)Math.round(sec));
