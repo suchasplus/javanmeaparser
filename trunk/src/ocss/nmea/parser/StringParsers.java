@@ -972,9 +972,12 @@ public class StringParsers
             local.set(Calendar.DATE, d);
             local.set(Calendar.MONTH, mo);
             local.set(Calendar.YEAR, y);
+            
+            Date rmcDate = local.getTime();
+            rmc.setRmcDate(rmcDate);
           }
-          Date rmcDate = local.getTime();
-          rmc.setRmcDate(rmcDate);
+          Date rmcTime = local.getTime();
+          rmc.setRmcTime(rmcTime);
 //        System.out.println("GPS date:" + rmcDate.toString());
         }
         if (data[3].length() > 0 && data[5].length() > 0)
@@ -1421,6 +1424,10 @@ public class StringParsers
     ld = durationToDate(str);
     System.out.println(str + " => " + new Date(ld));
     
+    str = "$IIRMC,092551,A,1036.145,S,15621.845,W,04.8,317,,10,E,A*0D";
+    RMC rmc = null;
+    rmc = parseRMC(str);
+    
     str = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74";
     HashMap<Integer, SVData> hm = parseGSV(str);
     str = "$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*74";
@@ -1447,7 +1454,7 @@ public class StringParsers
     
     str = "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A";
 
-    RMC rmc = null; // parseRMC(str);
+    rmc = null; // parseRMC(str);
 //  System.out.println("RMC:" + rmc);
 //  System.out.println("RMC Done.");
 
