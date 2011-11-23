@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import user.util.GeomUtil;
 
+@SuppressWarnings("serial")
 public final class GeoPoint
         implements Serializable
 {
@@ -117,6 +118,7 @@ public final class GeoPoint
     System.out.println("-----------------------------------");
     
     long before = System.currentTimeMillis();
+    @SuppressWarnings("unused")
     double d = 0D;
     for (int i=0; i<10000; i++)
       d = p1.loxoDistanceBetween(p2);
