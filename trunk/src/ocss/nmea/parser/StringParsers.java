@@ -1561,6 +1561,36 @@ public class StringParsers
     
     System.out.println("Test:" + GSA.ModeOne.Auto);
     
+    /*
+     * Cloning cable strings
+     * 
+     $PICOA,90,00,REMOTE,ON*58
+     $PICOA,90,02,REMOTE,ON*5A
+     $PICOA,90,02,MODE,USB*18
+     $PICOA,90,02,MODE,J3E*60
+     $PICOA,90,02,RXF,8.415000*05
+     $PICOA,90,02,TXF,8.415000*03
+     */
+    str = "$PICOA,90,00,REMOTE,ON*58";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    
+    System.out.println("String generation:");
+    str = "PICOA,90,02,RXF,8.415000"; // Attention! No leading '$'
+    int cs = StringParsers.calculateCheckSum(str);
+    String cks = Integer.toString(cs, 16).toUpperCase();
+    if (cks.length() < 2)
+      cks = "0" + cks;
+    str += ("*" + cks);
+    System.out.println("With checksum: $" + str);
+
+    str = "PICOA,90,02,TXF,8.415000";
+    cs = StringParsers.calculateCheckSum(str);
+    cks = Integer.toString(cs, 16).toUpperCase();
+    if (cks.length() < 2)
+      cks = "0" + cks;
+    str += ("*" + cks);
+    System.out.println("With checksum: $" + str);
+    
     System.out.println("Done");
   }    
 }
