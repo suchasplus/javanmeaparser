@@ -803,8 +803,8 @@ public class StringParsers
       return ret;
         
     double hdg = 0d;
-    double dev = -Double.MAX_VALUE;
-    double var = -Double.MAX_VALUE;
+    double dev = 0d;
+    double var = 0d;
     /* Structure is
      * $xxHDG,x.x,x.x,a,x.x,a*hh<CR><LF>
      *        |   |   | |   | | 
@@ -820,10 +820,10 @@ public class StringParsers
       String[] nmeaElements = data.substring(0, data.indexOf("*")).split(",");
       try { hdg = parseNMEADouble(nmeaElements[1]); } catch (Exception ex) {}
       try { dev = parseNMEADouble(nmeaElements[2]); } catch (Exception ex) {}
-      if ("W".equals(nmeaElements[3]))
+      if (nmeaElements.length > 3 && nmeaElements[3] != null && "W".equals(nmeaElements[3]))
         dev = -dev;
       try { var = parseNMEADouble(nmeaElements[4]); } catch (Exception ex) {}
-      if ("W".equals(nmeaElements[5]))
+      if (nmeaElements.length > 5 && nmeaElements[5] != null && "W".equals(nmeaElements[5]))
         var = -var;
     }
     catch (Exception ex)
@@ -1591,6 +1591,14 @@ public class StringParsers
     str += ("*" + cks);
     System.out.println("With checksum: $" + str);
     
+    str = "$IIHDG,178.,,,,*77";
+    double[] hdgData = StringParsers.parseHDG(str);
+    System.out.println("Hdg:" + hdgData[StringParsers.HDG_in_HDG] + ", d:" + hdgData[StringParsers.DEV_in_HDG] + " W:" + hdgData[StringParsers.VAR_in_HDG]);
+    
+    str = "$IIHDG,126,,,10,E*16";
+    hdgData = StringParsers.parseHDG(str);
+    System.out.println("Hdg:" + hdgData[StringParsers.HDG_in_HDG] + ", d:" + hdgData[StringParsers.DEV_in_HDG] + " W:" + hdgData[StringParsers.VAR_in_HDG]);
+
     System.out.println("Done");
   }    
 }
