@@ -1,18 +1,18 @@
 package ocss.nmea.api;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Model. This is an abstract class to extend to implement your own data-source.
  * Examples are given for a file containing the data - that can be used as a simulator,
  * and for a Serial Port, that can be used for the real world.
- * 
+ *
  * @version 1.0
  * @author Olivier Le Diouris
  */
 public abstract class NMEAReader extends Thread
 {
-  private ArrayList<NMEAListener> NMEAListeners = null; // new ArrayList(2);
+  private List<NMEAListener> NMEAListeners = null; // new ArrayList(2);
 
   protected boolean goRead = true;
     
@@ -20,7 +20,7 @@ public abstract class NMEAReader extends Thread
   {
   }
   
-  public NMEAReader(ArrayList<NMEAListener> al)
+  public NMEAReader(List<NMEAListener> al)
   {
     if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Creating reader");
     NMEAListeners = al;
