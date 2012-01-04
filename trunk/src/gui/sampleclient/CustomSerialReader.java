@@ -22,6 +22,8 @@ import java.util.TooManyListenersException;
 import gnu.io.CommPortOwnershipListener;
 import gnu.io.SerialPortEventListener;
 
+import java.util.List;
+
 import ocss.nmea.api.NMEAListener;
 
 public class CustomSerialReader 
@@ -40,12 +42,12 @@ public class CustomSerialReader
     comPort = com;
   }
   
-  public CustomSerialReader(ArrayList<NMEAListener> al)
+  public CustomSerialReader(List<NMEAListener> al)
   {
     super(al);
   }
 
-  public CustomSerialReader(ArrayList<NMEAListener> al, String com)
+  public CustomSerialReader(List<NMEAListener> al, String com)
   {
     super(al);
     comPort = com;

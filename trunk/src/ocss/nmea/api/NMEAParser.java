@@ -1,6 +1,8 @@
 package ocss.nmea.api;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import ocss.nmea.api.NMEAEvent;
 import ocss.nmea.api.NMEAListener;
 import ocss.nmea.api.NMEAException;
@@ -30,14 +32,14 @@ public final class NMEAParser extends Thread
   
   private static String NMEA_EOS = WINDOWS_NMEA_EOS;
   
-  private transient ArrayList<NMEAListener> NMEAListeners = null; // new ArrayList(2);
+  private transient List<NMEAListener> NMEAListeners = null; // new ArrayList(2);
 
   NMEAParser instance = null;
   /**
    * @param al The ArrayList of the Listeners instanciated by the NMEAClient
    */
    
-  public NMEAParser(ArrayList<NMEAListener> al)
+  public NMEAParser(List<NMEAListener> al)
   {      
     if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Creating parser");
     instance = this;

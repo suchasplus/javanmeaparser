@@ -1,18 +1,19 @@
 package ocss.nmea.api;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A View. Must be extended to be used from the client.
  * The typical sequence would look like this:
  * <pre>
- * public class CustomClient extends NMEAClient 
+ * public class CustomClient extends NMEAClient
  * {
  *   public CustomClient(String s, String[] sa)
  *   {
  *     super(s, sa);
  *   }
- *   
+ *
  *   public static void main(String[] args)
  *   {
  *     String prefix = "II";
@@ -22,12 +23,12 @@ import java.util.ArrayList;
  *     customClient.setReader(new CustomReader(customClient.getListeners()));
  *     customClient.startWorking();
  *   }
- * } 
+ * }
  * </pre>
  */
 public abstract class NMEAClient 
 {
-  private transient ArrayList<NMEAListener> NMEAListeners = new ArrayList<NMEAListener>(2);
+  private transient List<NMEAListener> NMEAListeners = new ArrayList<NMEAListener>(2);
   private NMEAParser parser;
   private NMEAReader reader;
   private String devicePrefix = "";
@@ -93,7 +94,7 @@ public abstract class NMEAClient
   public NMEAReader getReader()
   { return this.reader; }
 
-  public ArrayList<NMEAListener> getListeners()
+  public List<NMEAListener> getListeners()
   {  return this.NMEAListeners; }
   
   public void startWorking()

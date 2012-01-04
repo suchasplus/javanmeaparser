@@ -5,6 +5,8 @@ import ocss.nmea.api.NMEAEvent;
 import java.util.ArrayList;
 import java.io.FileInputStream;
 
+import java.util.List;
+
 import ocss.nmea.api.NMEAListener;
 
 /**
@@ -13,7 +15,7 @@ import ocss.nmea.api.NMEAListener;
 public class CustomFileReader extends NMEAReader
 {
   String dataFileName = null;
-  public CustomFileReader(ArrayList<NMEAListener> al, String fName)
+  public CustomFileReader(List<NMEAListener> al, String fName)
   {
     super(al);
     System.out.println("There are " + al.size() + " listener(s)");

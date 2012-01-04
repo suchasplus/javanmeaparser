@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.BorderFactory;
@@ -31,7 +33,7 @@ public class NMEAFrame extends JFrame
   
   private CustomClient4Frame cc4f = null;
   private NMEAReader r            = null;
-  private ArrayList<NMEAListener> NMEAListeners = null;
+  private List<NMEAListener> NMEAListeners = null;
   
   JPanel topPanel = new JPanel();
   JLabel jLabel1 = new JLabel();
