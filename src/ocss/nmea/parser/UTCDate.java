@@ -29,6 +29,6 @@ public class UTCDate implements Serializable
 
   public String toString()
   {
-    return FMT.format(this.date);
+    return (date != null)?FMT.format(this.date):null;
   }
 }

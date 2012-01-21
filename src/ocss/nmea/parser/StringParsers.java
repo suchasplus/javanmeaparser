@@ -803,8 +803,8 @@ public class StringParsers
       return ret;
         
     double hdg = 0d;
-    double dev = 0d;
-    double var = 0d;
+    double dev = -Double.MAX_VALUE;
+    double var = -Double.MAX_VALUE;
     /* Structure is
      * $xxHDG,x.x,x.x,a,x.x,a*hh<CR><LF>
      *        |   |   | |   | | 
@@ -1598,6 +1598,14 @@ public class StringParsers
     str = "$IIHDG,126,,,10,E*16";
     hdgData = StringParsers.parseHDG(str);
     System.out.println("Hdg:" + hdgData[StringParsers.HDG_in_HDG] + ", d:" + hdgData[StringParsers.DEV_in_HDG] + " W:" + hdgData[StringParsers.VAR_in_HDG]);
+
+    str = "$IIRMC,220526.00,A,3754.34,N,12223.20,W,3.90,250,,015,E,N*07";
+    rmc = StringParsers.parseRMC(str);
+    Date date = rmc.getRmcDate();
+    Date time = rmc.getRmcTime();
+    
+    System.out.println("Date:" + date);
+    System.out.println("Time:" + time);
 
     System.out.println("Done");
   }    

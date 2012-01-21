@@ -40,5 +40,6 @@ public class UTCHolder
   }
   public String toString()
   {
-    return FMT.format(getValue());
+    Date date = getValue();
+    return (date != null)?FMT.format(date):null;
   }}
