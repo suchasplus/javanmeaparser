@@ -9,6 +9,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 
+import java.util.TimeZone;
+
 import user.util.GeomUtil;
 
 public class StringParsers 
@@ -1340,6 +1342,11 @@ public class StringParsers
    * Return a UTC date                      
    */
   public static long durationToDate(String duration)
+  {
+    return durationToDate(duration, null);
+  }
+  
+  public static long durationToDate(String duration, String tz)
     throws RuntimeException
   {
     String yyyy = duration.substring( 0,  4);
@@ -1372,6 +1379,8 @@ public class StringParsers
 //  System.out.println("UTC Offset:" + utcOffset);
 
     Calendar calendar = Calendar.getInstance();
+    if (utcOffset == 0f && tz != null)
+      calendar.setTimeZone(TimeZone.getTimeZone(tz));
     try
     {
       calendar.set(Integer.parseInt(yyyy), Integer.parseInt(mm)-1, Integer.parseInt(dd), Integer.parseInt(hh), Integer.parseInt(mi), Integer.parseInt(ss));
