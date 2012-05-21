@@ -1,13 +1,11 @@
 package gui.sampleclient;
 
-import java.util.ArrayList;
-
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
-import ocss.nmea.api.NMEAListener;
-import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Wind;
+
 
 public class CustomClient4Frame extends NMEAClient 
 {
