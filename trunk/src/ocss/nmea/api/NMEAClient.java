@@ -28,7 +28,7 @@ import java.util.List;
  */
 public abstract class NMEAClient 
 {
-  private transient List<NMEAListener> NMEAListeners = new ArrayList<NMEAListener>(2);
+  private List<NMEAListener> NMEAListeners = new ArrayList<NMEAListener>(2);
   private NMEAParser parser;
   private NMEAReader reader;
   private String devicePrefix = "";
@@ -99,8 +99,11 @@ public abstract class NMEAClient
   
   public void startWorking()
   {
-    this.reader.start();
-    this.parser.start();
+    synchronized (this)
+    {
+      synchronized (this.reader) { this.reader.start(); }
+      synchronized (this.parser) { this.parser.start(); }
+    }
   }
 
   /**
