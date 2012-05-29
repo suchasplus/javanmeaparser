@@ -222,7 +222,7 @@ public class StringParsers
   {
     String s = data.trim();
     if (s.length() < 6)
-      return null;
+      return (double[])null;
     /* Structure is 
      *         1   2 3   4 5   6 7   8
      *  $aaVHW,x.x,T,x.x,M,x.x,N,x.x,K*hh(CR)(LF)
@@ -247,7 +247,7 @@ public class StringParsers
     catch (Exception ex)
     {
       ex.printStackTrace();
-      return null;
+      return (double[])null;
     }    
 
     return new double[] { speed, hdm, hdg };
@@ -267,7 +267,7 @@ public class StringParsers
   {
     String s = data.trim();
     if (s.length() < 6)
-      return null;
+      return (double[])null;
     
     double cumulative = 0d;
     double sinceReset = 0d;
@@ -288,7 +288,7 @@ public class StringParsers
     catch (Exception ex)
     {
       ex.printStackTrace();
-      return null;
+      return (double[])null;
     }
     return new double[] { cumulative, sinceReset };
   }
@@ -551,8 +551,7 @@ public class StringParsers
             nIndex = i;
             break;
           }
-        }
-        
+        }        
         angle = sa[tIndex - 1];
         speed = sa[nIndex - 1];
         if (speed.endsWith("."))
@@ -609,7 +608,7 @@ public class StringParsers
   {
     String s = data.trim();
     if (s.length() < 6)
-      return null;
+      return (Object[])null;
     /* Structure is 
      *  $aaGLL,llll.ll,a,gggg.gg,a,hhmmss.ss,A*hh
      *         |       | |       | |         |
@@ -625,7 +624,7 @@ public class StringParsers
     try
     {
       if (s.indexOf("A*") == -1) // Data invalid
-        return null;
+        return (Object[])null;
       else
       {
         int i = s.indexOf(",");
@@ -831,7 +830,7 @@ public class StringParsers
     catch (Exception ex)
     {
       ex.printStackTrace();
-      return null;
+      return (double[])null;
     }
     ret = new double[] { hdg, dev, var };
     
