@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import java.text.DecimalFormat;
 
-public class Angle360 implements NMEADoubleValueHolder, Serializable
+public class Angle360 extends Angle // implements NMEADoubleValueHolder, Serializable
 {
   protected double angle = 0d;
   protected static final String UNIT = "\272";
