@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import java.net.Socket;
+import java.net.SocketException;
 
 public class GPSdClient
 {
@@ -18,11 +19,11 @@ public class GPSdClient
   private boolean keepReading = true;
   private boolean verbose = false;
   
-  public GPSdClient(GPSdClientInterface client, String host, int port)
+  public GPSdClient(GPSdClientInterface client, String host, int port) throws Exception
   {
     this(client, host, port, false);
   }
-  public GPSdClient(GPSdClientInterface client, String host, int port, boolean v)
+  public GPSdClient(GPSdClientInterface client, String host, int port, boolean v) throws Exception
   {
     this.parent = client;
     this.hostName = host;
@@ -53,9 +54,13 @@ public class GPSdClient
                 String tpv = inFromServer.readLine();
                 parent.tpvRead(tpv);
               }
+              catch (SocketException se)
+              {
+                System.err.println(se.getLocalizedMessage());
+              }
               catch (IOException ioe)
               {
-                ioe.printStackTrace();
+                System.err.println(ioe.getLocalizedMessage());
               }
             }
           }
@@ -68,7 +73,7 @@ public class GPSdClient
     }
     catch (Exception ex)
     {
-      ex.printStackTrace();
+      throw ex;
     }
   }
 
