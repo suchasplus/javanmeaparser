@@ -11,7 +11,12 @@ import ocss.nmea.parser.RMC;
 
 public class GPSdUtils
 {
+  public final static String VERSION = "?VERSION;";
+  public final static String WATCH   = "?WATCH=";
+  public final static String POLL    = "?POLL;";
+
   private final static SimpleDateFormat TO_DURATION = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
+  private final static SimpleDateFormat FOR_VERSION = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * TVP Track Velocity Position
@@ -52,7 +57,7 @@ public class GPSdUtils
 //    System.out.println(dropQuotes(nvp[0]) + " => " + dropQuotes(nvp[1]));
     }
     if (!"TPV".equals(tpvMap.get("class")))
-      throw new GPSDException("Bad class name, expected TPV");
+      throw new GPSDException("Bad class name, expected TPV in \n" + gpsdTPVString);
     
     rmc = new RMC();
     try 
@@ -69,6 +74,51 @@ public class GPSdUtils
     }
      
     return rmc;
+  }
+  
+  public static String produceVersion(String verNum, Date revDate, int major, int minor)
+  {
+    String version = "{\"class\":\"VERSION\",\"release\":\"" + verNum + 
+                     "\",\"rev\":\"" + FOR_VERSION.format(revDate) + 
+                     "\",\"proto_major\":" + Integer.toString(major) + 
+                     ",\"proto_minor\":" + Integer.toString(minor) + "}";    
+    return version;
+  }
+  
+  public static String produceDevices(String[] path, Date[] activated, int[] br, String[] parity, int[] stopbit) throws GPSDException
+  {
+    if (path == null || path.length == 0 ||
+        activated == null || activated.length == 0 ||
+        br == null || br.length == 0 ||
+        parity == null || parity.length == 0 ||
+        stopbit == null || stopbit.length == 0)
+      throw new GPSDException("Missing data...");
+    if (path.length != activated.length ||
+        activated.length != br.length ||
+        br.length != parity.length ||
+        parity.length != stopbit.length)
+      throw new GPSDException("Inconsistent array lengths...");
+    
+    String devices = "{\"class\":\"DEVICES\",\"devices\":[";
+    for (int i=0; i<path.length; i++)
+    {
+      devices += "{\"class\":\"DEVICE\",\"path\":\"" + path[i] + 
+                                       "\",\"activated\":\"" + TO_DURATION.format(activated[i]) + 
+                                       "\",\"native\":0,\"bps\":" + Integer.toString(br[i]) + 
+                                       ",\"parity\":\"" + parity[i] + 
+                                       "\",\"stopbits\":" + Integer.toString(stopbit[i]) + 
+                                       ",\"cycle\":1.00}";
+      if (i < path.length - 1)
+        devices += ",";
+    }
+    devices += "]}";
+    
+    return devices;
+  }
+  
+  public static String produceWatch()
+  {
+    return "{\"class\":\"WATCH\",\"enable\":true,\"json\":false,\"nmea\":true,\"raw\":0,\"scaled\":false,\"timing\":false}";
   }
   
   private final static String dropQuotes(String str)
@@ -111,6 +161,12 @@ public class GPSdUtils
     tpv = produceTPV(new Date(), new GeoPos(37.5, -122.2345), 210d, 5.6);
     System.out.println(tpv);
     
+    System.out.println("Generated version:\n" + produceVersion("2.93", new Date(), 3, 2));
+    System.out.println("Generated devices:\n" + produceDevices(new String[] { "COM10", "COM9" }, 
+                                                               new Date[] { new Date(), new Date() }, 
+                                                               new int[] { 4800, 9600 }, 
+                                                               new String[] { "N", "N" }, 
+                                                               new int[] { 1, 1 }));
     System.out.println("Done.");
   }
 }
