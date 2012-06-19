@@ -2,7 +2,10 @@ package ocss.nmea.parser;
 
 import java.io.Serializable;
 
+import java.text.SimpleDateFormat;
+
 import java.util.Date;
+import java.util.TimeZone;
 
 public class RMC implements Serializable
 {
@@ -14,6 +17,12 @@ public class RMC implements Serializable
   private Date rmcTime = null;
   private double declination = -Double.MAX_VALUE;
 
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("E dd-MMM-yyyy HH:mm:ss.SS");
+  static
+  {
+    SDF.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+  }
+  
   public RMC()
   {
   }
@@ -53,7 +62,7 @@ public class RMC implements Serializable
     String str = "";
     str = gp.toString() + ", " + "SOG:" + sog + ", COG:" + cog;
     if (rmcDate != null)
-      str += (" " + rmcDate.toString() + " ");
+      str += (" " + SDF.format(rmcDate) + " ");
     if (declination != -Double.MAX_VALUE)
       str += ("D:" + Double.toString(declination));
     
