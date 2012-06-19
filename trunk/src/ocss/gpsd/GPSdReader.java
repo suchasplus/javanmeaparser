@@ -40,7 +40,7 @@ public class GPSdReader
     }
   }
   
-  public static void main(String[] args)
+  public static void main(String[] args) throws Exception
   {
     GPSdReader reader = new GPSdReader();
     client = new GPSdClient(reader, "localhost", 2947, true);  
