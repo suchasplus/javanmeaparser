@@ -23,6 +23,7 @@ public class GPSdClient
   {
     this(client, host, port, false);
   }
+  
   public GPSdClient(GPSdClientInterface client, String host, int port, boolean v) throws Exception
   {
     this.parent = client;
