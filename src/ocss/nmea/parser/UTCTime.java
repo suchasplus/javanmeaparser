@@ -6,11 +6,16 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 public class UTCTime implements Serializable
 {
   private Date date = null;
   private static SimpleDateFormat FMT = new SimpleDateFormat("HH:mm:ss 'UTC'");
+  static 
+  {
+    FMT.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+  }
 
   public UTCTime()
   {

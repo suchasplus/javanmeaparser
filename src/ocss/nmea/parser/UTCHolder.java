@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 public class UTCHolder
   implements Serializable
@@ -12,6 +13,10 @@ public class UTCHolder
   private UTCDate utcDate = null;
   private UTCTime utcTime = null;
   private static SimpleDateFormat FMT = new SimpleDateFormat("EEE, yyyy MMM dd HH:mm:ss 'UTC'");
+  static 
+  {
+    FMT.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+  }
   
   public UTCHolder(UTCDate d)
   {
