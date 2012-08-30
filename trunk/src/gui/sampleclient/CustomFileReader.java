@@ -2,7 +2,6 @@ package gui.sampleclient;
 
 import ocss.nmea.api.NMEAReader;
 import ocss.nmea.api.NMEAEvent;
-import java.util.ArrayList;
 import java.io.FileInputStream;
 
 import java.util.List;
@@ -40,7 +39,8 @@ public class CustomFileReader extends NMEAReader
         if (l != -1 && dim > 0)
         {
           String nmeaContent = new String(ba);
-//        System.out.println("Spitting out [" + nmeaContent + "]");
+          if ("true".equals(System.getProperty("verbose", "false")))
+            System.out.println("Spitting out [" + nmeaContent + "]");
           fireDataRead(new NMEAEvent(this, nmeaContent));
           try { Thread.sleep(500); } catch (Exception ignore) {}
         }

@@ -19,8 +19,17 @@ public class CustomClient extends NMEAClient
   }
 
   private static CustomClient customClient = null;  
+  
   public static void main(String[] args)
   {
+    System.out.println("CustomClient invoked with " + args.length + " Parameter(s).");
+    for (String s : args)
+      System.out.println("CustomClient prm:" + s);
+    
+    String commPort = "COM1";
+    if (args.length > 0)
+      commPort = args[0];
+    
 //  String prefix = "II";
 //  String[] array = {"HDM", "GLL", "XTE", "MWV", "VHW"};
     String prefix = "GP";
@@ -38,7 +47,7 @@ public class CustomClient extends NMEAClient
     customClient.setEOS("\n");
     customClient.initClient();
 //  customClient.setReader(new CustomReader(customClient.getListeners()));
-    customClient.setReader(new CustomSerialReader(customClient.getListeners()));
+    customClient.setReader(new CustomSerialReader(customClient.getListeners(), commPort));
     customClient.startWorking();
   }
 

@@ -1,5 +1,7 @@
 package ui.sampleclient;
 
+import gui.sampleclient.CustomSerialReader;
+
 import ocss.nmea.api.NMEAReader;
 import ocss.nmea.api.NMEAEvent;
 import java.util.ArrayList;
