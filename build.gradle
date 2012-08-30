@@ -1,0 +1,68 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+def userprofile = System.getenv()['USERPROFILE'] // On Windows...
+
+group = 'oliv.cool.stuff'
+version = '1.0'
+
+ant.setproxy(proxyhost: "$proxyHost", proxyport: "$proxyPort") //, proxyuser="user", proxypassword="password") 
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src'
+    }
+  }  
+  test {
+    java {
+      srcDir 'tests'
+    }
+  }  
+}
+
+repositories {
+  mavenCentral()
+  maven { url "http://lediouris.net/maven2" }
+  maven { url "file:///" + userprofile + "/.m2/repository" }
+}
+
+dependencies {
+  testCompile 'junit:junit:4.8.2'
+  compile 'comm:rxtx:1.0'
+  compile project(':GeomUtil')
+//compile 'oliv.cool.stuff:GeomUtil:1.0'
+}
+
+task run(type: JavaExec, dependsOn: build, description: "Run some tests. No GUI, bulk output.") {
+  main = 'ocss.nmea.parser.StringParsers'   
+//jvmArgs "-verbose"
+  classpath project.configurations.default 
+  classpath sourceSets.main.output.classesDir
+}
+
+task run2(type: JavaExec, dependsOn: build, description: "Run Custom Client with GUI.") {
+  main = 'ui.sampleclient.CustomClient'   
+//jvmArgs "-verbose"
+  jvmArgs "-Dverbose=true"
+  jvmArgs "-Djava.library.path=../all-3rd-party/rxtx.distrib/win64"
+  classpath project.configurations.default 
+  classpath sourceSets.main.output.classesDir
+  args "COM3" // comma separated if several parameters.
+}
+
+task run3(type: JavaExec, dependsOn: build, description: "Run file simulation with GUI.") {
+  main = 'gui.sampleclient.Main'   
+  jvmArgs "-Dverbose=true"
+  classpath project.configurations.default 
+  classpath sourceSets.main.output.classesDir
+//args "./data/nmea.txt"
+  args "./data/hydra2.nmea"
+}
+
+task tellMeProxy (description: "Spits out the proxy settings.") {
+  println "Accessing resources with proxy $proxyHost:$proxyPort"
+  println "UserProfile: " + System.getenv()['USERPROFILE']
+}
+
+compileJava.dependsOn(tellMeProxy)

@@ -20,9 +20,83 @@ public final class GeomUtil
   
   public final static String DEGREE_SYMBOL = "º";
 
+  public static class PolyAngle
+  {
+
+    public double getAngleInDegrees()
+    {
+      return angleInDegrees;
+    }
+
+    private double angleInDegrees;
+    public static final short DEGREES = 0;
+    public static final short HOURS = 1;
+
+    public PolyAngle()
+    {
+    }
+
+    public PolyAngle(double d, short type)
+    {
+      switch(type)
+      {
+      case 0:
+        angleInDegrees = d;
+        break;
+
+      case 1:
+//      angleInDegrees = GeomUtil.ra2ha(d);
+        break;
+      }
+    }
+
+    public PolyAngle(String str, short type)
+    {
+    }
+  }
+
+  /**
+   * Get the direction
+   * @param x horizontal displacement
+   * @param y vertical displacement
+   * @return the angle, in degrees
+   */
+  public static double getDir(float x, float y)
+  {
+    double dir = 0.0D;
+    if (y != 0)
+      dir = Math.toDegrees(Math.atan((double)x / (double)y));
+    if (x <= 0 || y <= 0)
+    {
+      if (x > 0 && y < 0)
+        dir += 180D;
+      else if (x < 0 && y > 0)
+        dir += 360D;
+      else if (x < 0 && y < 0)
+        dir += 180D;
+      else if (x == 0)
+      {
+        if (y > 0)
+          dir = 0.0D;
+        else
+          dir = 180D;
+      } 
+      else if (y == 0)
+      {
+        if (x > 0)
+          dir = 90D;
+        else
+          dir = 270D;
+      }
+    }
+
+    while (dir >= 360D) dir -= 360D;
+    return dir;
+  }
+
   /**
    * 
-   * @param fullString like "N 37º55.49"
+   * @param fullString like [N 37º55.49], or [N 37º55'12.49"] 
    * @return
    * @throws RuntimeException
    */
@@ -31,9 +105,25 @@ public final class GeomUtil
     try
     {
       String sgn = fullString.substring(0, 1);
-      String degrees = fullString.substring(2, fullString.indexOf("º"));
-      String minutes = fullString.substring(fullString.indexOf("º") + 1);
-      double d = sexToDec(degrees, minutes);
+      int degSignIndex = fullString.indexOf("°");
+      if (degSignIndex < 0)
+        degSignIndex = fullString.indexOf("º");
+      String degrees = fullString.substring(2,degSignIndex );
+      String minutes = "";
+      String seconds = "";
+      if (fullString.indexOf("\"") > -1)
+      {
+        minutes = fullString.substring(degSignIndex + 1, fullString.indexOf("'"));
+        seconds = fullString.substring(fullString.indexOf("'") + 1, fullString.indexOf("\""));
+      }
+      else
+        minutes = fullString.substring(degSignIndex + 1);
+      
+      double d = 0L;
+      if (seconds.trim().length() > 0)
+        d = sexToDec(degrees, minutes, seconds);
+      else
+        d = sexToDec(degrees, minutes);
       if (sgn.equals("S") || sgn.equals("W"))
         d = -d;
       return d;
@@ -411,5 +501,11 @@ public final class GeomUtil
     System.out.println("Bug:" + bug + " " + formatDMS(bug) + " (fixed)");
     
     System.out.println("Display:[" + GeomUtil.decToSex(37.123, GeomUtil.NO_DEG, GeomUtil.NS) + "]");
+    
+    String fromJPEG = "N 37°39'49.8\"";
+    System.out.println(fromJPEG + " is [" + sexToDec(fromJPEG) + "]");
+    
+    fromJPEG = "W 112°9'34.36\"";
+    System.out.println(fromJPEG + " is [" + sexToDec(fromJPEG) + "]");
   }
 }
