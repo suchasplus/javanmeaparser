@@ -31,9 +31,9 @@ public class NMEAFrame extends JFrame
 
   boolean reading = false;
   
-  private CustomClient4Frame cc4f = null;
-  private NMEAReader r            = null;
-  private List<NMEAListener> NMEAListeners = null;
+  private transient CustomClient4Frame cc4f = null;
+  private transient NMEAReader r            = null;
+  private transient List<NMEAListener> NMEAListeners = null;
   
   JPanel topPanel = new JPanel();
   JLabel jLabel1 = new JLabel();
@@ -61,7 +61,7 @@ public class NMEAFrame extends JFrame
   {
     for (int i=0; i<NMEAListeners.size(); i++)
     {
-      NMEAListener l = (NMEAListener)NMEAListeners.get(i);
+      NMEAListener l = NMEAListeners.get(i);
       l.stopReading(e);
     }
   }
