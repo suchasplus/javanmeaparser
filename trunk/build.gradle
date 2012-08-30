@@ -30,7 +30,7 @@ repositories {
 dependencies {
   testCompile 'junit:junit:4.8.2'
   compile 'comm:rxtx:1.0'
-  compile project(':GeomUtil')
+//compile project(':GeomUtil')
 //compile 'oliv.cool.stuff:GeomUtil:1.0'
 }
 
