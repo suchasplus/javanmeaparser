@@ -34,14 +34,14 @@ dependencies {
 //compile 'oliv.cool.stuff:GeomUtil:1.0'
 }
 
-task run(type: JavaExec, dependsOn: build, description: "Run some tests. No GUI, bulk output.") {
+task run(type: JavaExec, dependsOn: build, description: "Run some tests. No GUI, bulk output.") << {
   main = 'ocss.nmea.parser.StringParsers'   
 //jvmArgs "-verbose"
   classpath project.configurations.default 
   classpath sourceSets.main.output.classesDir
 }
 
-task run2(type: JavaExec, dependsOn: build, description: "Run Custom Client with GUI.") {
+task run2(type: JavaExec, dependsOn: build, description: "Run Custom Client with GUI.") << {
   main = 'ui.sampleclient.CustomClient'   
 //jvmArgs "-verbose"
   jvmArgs "-Dverbose=true"
@@ -51,7 +51,7 @@ task run2(type: JavaExec, dependsOn: build, description: "Run Custom Client with
   args "COM3" // comma separated if several parameters.
 }
 
-task run3(type: JavaExec, dependsOn: build, description: "Run file simulation with GUI.") {
+task run3(type: JavaExec, dependsOn: build, description: "Run file simulation with GUI.") << {
   main = 'gui.sampleclient.Main'   
   jvmArgs "-Dverbose=true"
   classpath project.configurations.default 
@@ -60,7 +60,7 @@ task run3(type: JavaExec, dependsOn: build, description: "Run file simulation wi
   args "./data/hydra2.nmea"
 }
 
-task copyResources(type: Copy) {
+task copyResources(type: Copy) << {
   description = 'Copies non-java resources in the output directory before the jar task (png, xml, xsd, ttf, properties, etc)'
   from 'src'
   into 'build/classes/main'
@@ -69,7 +69,7 @@ task copyResources(type: Copy) {
 
 jar.dependsOn(copyResources)
 
-task tellMeProxy (description: "Spits out the proxy settings.") {
+task tellMeProxy (description: "Spits out the proxy settings.") << {
   println "Accessing resources with proxy $proxyHost:$proxyPort"
   println "UserProfile: " + System.getenv()['USERPROFILE']
 }
