@@ -60,6 +60,15 @@ task run3(type: JavaExec, dependsOn: build, description: "Run file simulation wi
   args "./data/hydra2.nmea"
 }
 
+task copyResources(type: Copy) {
+  description = 'Copies non-java resources in the output directory before the jar task (png, xml, xsd, ttf, properties, etc)'
+  from 'src'
+  into 'build/classes/main'
+  include '**/*.xml', '**/*.xsd', '**/*.png', '**/*.gif', '**/*.jpg', '**/*.properties', '**/*.ttf', '**/*.html'
+}
+
+jar.dependsOn(copyResources)
+
 task tellMeProxy (description: "Spits out the proxy settings.") {
   println "Accessing resources with proxy $proxyHost:$proxyPort"
   println "UserProfile: " + System.getenv()['USERPROFILE']
