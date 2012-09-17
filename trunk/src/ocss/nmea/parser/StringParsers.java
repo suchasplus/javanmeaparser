@@ -1616,6 +1616,33 @@ public class StringParsers
     
     System.out.println("Date:" + date);
     System.out.println("Time:" + time);
+    
+    System.out.println("-----------------------------------");
+    
+    str = "$GPRMC,183333.000,A,4047.7034,N,07247.9938,W,0.66,196.21,150912,,,A*7C";
+    rmc = StringParsers.parseRMC(str);
+    date = rmc.getRmcDate();
+    time = rmc.getRmcTime();
+    
+    System.out.println("Date:" + date);
+    System.out.println("Time:" + time);
+
+    str = "$GPGGA,183334.000,4047.7039,N,07247.9939,W,1,6,1.61,2.0,M,-34.5,M,,*6B";
+    al = parseGGA(str);
+    utc = (UTC)al.get(0);
+    pos = (GeoPos)al.get(1);
+    nbs = (Integer)al.get(2);
+    System.out.println("UTC:" + utc.toString());
+    System.out.println("Pos:" + pos.toString());
+    System.out.println(nbs.intValue() + " Satellite(s) in use");
+
+    str = "$GPRMC,183334.000,A,4047.7039,N,07247.9939,W,0.61,196.21,150912,,,A*70";
+    rmc = StringParsers.parseRMC(str);
+    date = rmc.getRmcDate();
+    time = rmc.getRmcTime();
+    
+    System.out.println("Date:" + date);
+    System.out.println("Time:" + time);
 
     System.out.println("Done");
   }    
