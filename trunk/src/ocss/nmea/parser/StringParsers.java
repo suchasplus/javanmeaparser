@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import java.util.TimeZone;
@@ -80,7 +81,7 @@ public class StringParsers
     return gsvMap;
   }
   
-  public static ArrayList<Object> parseGGA(String data)
+  public static List<Object> parseGGA(String data)
   {
     final int KEY_POS = 0;
     final int UTC_POS = 1;
@@ -1452,7 +1453,7 @@ public class StringParsers
     }
     
     str = "$GPGGA,014457,3739.853,N,12222.821,W,1,03,5.4,1.1,M,-28.2,M,,*7E";
-    ArrayList<Object> al = parseGGA(str);
+    List<Object> al = parseGGA(str);
     UTC utc = (UTC)al.get(0);
     GeoPos pos = (GeoPos)al.get(1);
     Integer nbs = (Integer)al.get(2);
