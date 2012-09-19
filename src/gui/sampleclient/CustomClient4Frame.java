@@ -1,8 +1,12 @@
 package gui.sampleclient;
 
+import java.util.List;
+
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
+import ocss.nmea.parser.GSA;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.RMC;
 import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Wind;
 
@@ -79,6 +83,16 @@ public class CustomClient4Frame extends NMEAClient
     {
       data = Float.toString(StringParsers.parseDBT(s, StringParsers.DEPTH_IN_METERS));
       System.out.println("Depth:" + data);
+    }
+    else if (key.equals("RMC"))
+    {
+      RMC rmc = StringParsers.parseRMC(s);
+      System.out.println("Pos:" + rmc.getGp());
+    }
+    else if (key.equals("GGA"))
+    {
+      List<Object> ol = StringParsers.parseGGA(data);
+      System.out.println("Parsed GGA");
     }
     else
     {
