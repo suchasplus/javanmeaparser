@@ -1,23 +1,24 @@
 package gui.sampleclient;
-import javax.swing.JFrame;
-import java.awt.Dimension;
-import java.awt.BorderLayout;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
-import java.util.ArrayList;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import java.util.List;
 
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
-import ocss.nmea.api.NMEAReader;
-import ocss.nmea.api.NMEAListener;
+
 import ocss.nmea.api.NMEAEvent;
+import ocss.nmea.api.NMEAListener;
+import ocss.nmea.api.NMEAReader;
+
 
 public class NMEAFrame extends JFrame 
 {
@@ -36,13 +37,8 @@ public class NMEAFrame extends JFrame
   private transient List<NMEAListener> NMEAListeners = null;
   
   JPanel topPanel = new JPanel();
-  JLabel jLabel1 = new JLabel();
-  JTextField prefixFld = new JTextField();
-  JLabel jLabel2 = new JLabel();
-  JLabel nmeaLengthLabel = new JLabel();
-  JLabel jLabel4 = new JLabel();
   private JTextField portTextField = new JTextField();
-  private JLabel jLabel3 = new JLabel();
+  private JLabel portLabel = new JLabel();
   
   public NMEAFrame(String fName)
   {
@@ -68,6 +64,8 @@ public class NMEAFrame extends JFrame
 
   private void jbInit() throws Exception
   {
+    portLabel.setEnabled(this.simulatorDataFile == null);
+    portTextField.setEnabled(this.simulatorDataFile == null);
     this.getContentPane().setLayout(borderLayout1);
     this.setSize(new Dimension(400, 300));
     this.setTitle("NMEA Reader");
@@ -79,28 +77,16 @@ public class NMEAFrame extends JFrame
           readButton_actionPerformed(e);
         }
       });
-    topPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-    jLabel1.setText("NMEA Device Prefix:");
-    prefixFld.setText("II"); // B&G Hydra
-    prefixFld.setPreferredSize(new Dimension(20, 20));
-    prefixFld.setHorizontalAlignment(JTextField.CENTER);
-    jLabel2.setText("(current NMEA stream length:");
-    nmeaLengthLabel.setText("0");
-    jLabel4.setText(")");
+    topPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)); // B&G Hydra
     portTextField.setText("COM1");
     portTextField.setPreferredSize(new Dimension(50, 20));
     portTextField.setHorizontalAlignment(JTextField.CENTER);
-    jLabel3.setText("Port:");
+    portLabel.setText("Port:");
     bottomPanel.add(readButton, null);
     this.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
     this.getContentPane().add(tp, BorderLayout.CENTER);
-    topPanel.add(jLabel3, null);
+    topPanel.add(portLabel, null);
     topPanel.add(portTextField, null);
-    topPanel.add(jLabel1, null);
-    topPanel.add(prefixFld, null);
-    topPanel.add(jLabel2, null);
-    topPanel.add(nmeaLengthLabel, null);
-    topPanel.add(jLabel4, null);
     this.getContentPane().add(topPanel, BorderLayout.NORTH);
   }
 
@@ -111,9 +97,7 @@ public class NMEAFrame extends JFrame
       reading = true;
       readButton.setText("Stop");
 
-      cc4f = new CustomClient4Frame(this.prefixFld.getText(), 
-                                    tp.getKeys(),
-                                    tp);
+      cc4f = new CustomClient4Frame(tp);
       NMEAListeners = cc4f.getListeners();
       if (this.simulatorDataFile != null)
       {
