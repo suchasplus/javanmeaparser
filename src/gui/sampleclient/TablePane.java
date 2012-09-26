@@ -1,28 +1,26 @@
 package gui.sampleclient;
 
-import java.awt.Graphics;
-import javax.swing.JTable;
-import javax.swing.JOptionPane;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.Graphics;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.Set;
 
-import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+
 
 public class TablePane
      extends JPanel 
 {
+  @SuppressWarnings("compatibility:1863034823770827688")
+  public final static long serialVersionUID = 1L;
+
   // Table Columns
   private final static String SENTENCE_ID   = "Sentence ID";
   private final static String VALUE         = "Value";
@@ -71,6 +69,9 @@ public class TablePane
     // Init Table
     dataModel = new AbstractTableModel()
     {
+        @SuppressWarnings("compatibility:9070027359489543434")
+        public final static long serialVersionUID = 1L;
+
       public int getColumnCount()
       { return NAMES.length; }
       public int getRowCount()
