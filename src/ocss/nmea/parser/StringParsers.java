@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import java.util.Map;
 import java.util.TimeZone;
 
 import user.util.GeomUtil;
@@ -26,8 +27,9 @@ public class StringParsers
    * ZLZ Time of Day
    */
 
-  private static HashMap<Integer, SVData> gsvMap = null;  
-  public static HashMap<Integer, SVData> parseGSV(String data)
+  private static Map<Integer, SVData> gsvMap = null;
+  
+  public static Map<Integer, SVData> parseGSV(String data)
   {
     String s = data.trim();
     if (s.length() < 6)
@@ -48,11 +50,15 @@ public class StringParsers
      */
     final int DATA_OFFSET = 3; // num of mess, mess num, Total num of SVs.
     final int NB_DATA     = 4; // SV num, elev, Z, SNR
+
+    int nbMess = -1; 
+    int messNum = -1;
+
     String sa[] = data.substring(0, data.indexOf("*")).split(",");
     try
     {
-      int nbMess = Integer.parseInt(sa[1]); // Not used for now, preferred nbSVinView
-      int messNum = Integer.parseInt(sa[2]);
+      nbMess = Integer.parseInt(sa[1]); 
+      messNum = Integer.parseInt(sa[2]);
       int nbSVinView = Integer.parseInt(sa[3]);
       if (messNum == 1) // Reset
       {
@@ -78,7 +84,10 @@ public class StringParsers
     {
       ex.printStackTrace();
     }
-    return gsvMap;
+    if (messNum != -1 && nbMess != -1 && messNum == nbMess)
+      return gsvMap;
+    
+    return null;
   }
   
   public static List<Object> parseGGA(String data)
@@ -1439,28 +1448,6 @@ public class StringParsers
     RMC rmc = null;
     rmc = parseRMC(str);
     
-    str = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74";
-    HashMap<Integer, SVData> hm = parseGSV(str);
-    str = "$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*74";
-    hm = parseGSV(str);
-    str = "$GPGSV,3,3,11,22,42,067,42,24,14,311,43,27,05,244,00,,,,*4D";
-    hm = parseGSV(str);
-    System.out.println(hm.size() + " Satellites in view:");
-    for (Integer sn : hm.keySet())
-    {
-      SVData svd = hm.get(sn);
-      System.out.println("Satellite #" + svd.getSvID() + " Elev:" + svd.getElevation() + ", Z:" + svd.getAzimuth() + ", SNR:" + svd.getSnr() + "db");
-    }
-    
-    str = "$GPGGA,014457,3739.853,N,12222.821,W,1,03,5.4,1.1,M,-28.2,M,,*7E";
-    List<Object> al = parseGGA(str);
-    UTC utc = (UTC)al.get(0);
-    GeoPos pos = (GeoPos)al.get(1);
-    Integer nbs = (Integer)al.get(2);
-    System.out.println("UTC:" + utc.toString());
-    System.out.println("Pos:" + pos.toString());
-    System.out.println(nbs.intValue() + " Satellite(s) in use");
-    
     str = "\n     $GPRMC,172214.004,A,3739.8553,N,12222.8144,W,000.0,000.0,220309,,,A*7C  \n  ";
     
     str = "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A";
@@ -1552,25 +1539,12 @@ public class StringParsers
     System.out.println("HDT:" + h);
     
     str = "$GPZDA,201530.00,04,07,2002,00,00*60";
-    utc = parseZDA(str);
+    UTC utc = parseZDA(str);
     System.out.println("UTC Time: " + utc.toString());
     
     str = "$IIVTG,17.,T,M,7.9,N,,*36";
     og = parseVTG(str);
     System.out.println("Over Ground:" + og);
-    
-    str = "$GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35";
-    GSA gsa = parseGSA(str);
-    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
-    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
-    System.out.println("- Sat in View:" + gsa.getSvArray().size());
-    str = "$GPGSA,A,2,,,,,,20,23,,,32,,,5.4,5.4,*1F";
-    gsa = parseGSA(str);
-    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
-    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
-    System.out.println("- Sat in View:" + gsa.getSvArray().size());
-    
-    System.out.println("Test:" + GSA.ModeOne.Auto);
     
     /*
      * Cloning cable strings
@@ -1628,6 +1602,47 @@ public class StringParsers
     System.out.println("Date:" + date);
     System.out.println("Time:" + time);
 
+    str = "$GPRMC,183334.000,A,4047.7039,N,07247.9939,W,0.61,196.21,150912,,,A*70";
+    rmc = StringParsers.parseRMC(str);
+    date = rmc.getRmcDate();
+    time = rmc.getRmcTime();
+    
+    System.out.println("Date:" + date);
+    System.out.println("Time:" + time);
+
+    System.out.println("------- GSV -------");
+    str = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74";
+    Map<Integer, SVData> hm = parseGSV(str);
+    if (hm == null)
+      System.out.println("GSV wait...");
+    str = "$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*74";
+    hm = parseGSV(str);
+    if (hm == null)
+      System.out.println("GSV wait...");
+    str = "$GPGSV,3,3,11,22,42,067,42,24,14,311,43,27,05,244,00,,,,*4D";
+    hm = parseGSV(str);
+    if (hm == null)
+      System.out.println("GSV wait...");
+    else
+    {
+      System.out.println(hm.size() + " Satellites in view:");
+      for (Integer sn : hm.keySet())
+      {
+        SVData svd = hm.get(sn);
+        System.out.println("Satellite #" + svd.getSvID() + " Elev:" + svd.getElevation() + ", Z:" + svd.getAzimuth() + ", SNR:" + svd.getSnr() + "db");
+      }
+    }
+
+    System.out.println("------- GGA -------");
+    str = "$GPGGA,014457,3739.853,N,12222.821,W,1,03,5.4,1.1,M,-28.2,M,,*7E";
+    List<Object> al = parseGGA(str);
+    utc = (UTC)al.get(0);
+    GeoPos pos = (GeoPos)al.get(1);
+    Integer nbs = (Integer)al.get(2);
+    System.out.println("UTC:" + utc.toString());
+    System.out.println("Pos:" + pos.toString());
+    System.out.println(nbs.intValue() + " Satellite(s) in use");
+    
     str = "$GPGGA,183334.000,4047.7039,N,07247.9939,W,1,6,1.61,2.0,M,-34.5,M,,*6B";
     al = parseGGA(str);
     utc = (UTC)al.get(0);
@@ -1637,14 +1652,21 @@ public class StringParsers
     System.out.println("Pos:" + pos.toString());
     System.out.println(nbs.intValue() + " Satellite(s) in use");
 
-    str = "$GPRMC,183334.000,A,4047.7039,N,07247.9939,W,0.61,196.21,150912,,,A*70";
-    rmc = StringParsers.parseRMC(str);
-    date = rmc.getRmcDate();
-    time = rmc.getRmcTime();
+    System.out.println("------- GSA -------");
+    str = "$GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35";
+    GSA gsa = parseGSA(str);
+    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
+    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
+    System.out.println("- Sat in View:" + gsa.getSvArray().size());
+    System.out.println("-----------");
+    str = "$GPGSA,A,2,,,,,,20,23,,,32,,,5.4,5.4,*1F";
+    gsa = parseGSA(str);
+    System.out.println("- Mode: " + (gsa.getMode1().equals(GSA.ModeOne.Auto)?"Automatic":"Manual"));
+    System.out.println("- Mode: " + (gsa.getMode2().equals(GSA.ModeTwo.NoFix)?"No Fix":(gsa.getMode2().equals(GSA.ModeTwo.TwoD)?"2D":"3D")));
+    System.out.println("- Sat in View:" + gsa.getSvArray().size());
     
-    System.out.println("Date:" + date);
-    System.out.println("Time:" + time);
-
+    System.out.println("Test:" + GSA.ModeOne.Auto);
+    
     System.out.println("Done");
   }    
 }
