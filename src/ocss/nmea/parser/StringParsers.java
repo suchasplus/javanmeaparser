@@ -70,10 +70,14 @@ public class StringParsers
         int rnkInView = ((messNum - 1) * NB_DATA) + (indexInSentence);
         if (rnkInView <= nbSVinView)
         {          
-          int svNum = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 1]);
-          int elev  = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 2]);
-          int z     = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 3]);
-          int snr   = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 4]);
+          int svNum = 0;
+          int elev  = 0;
+          int z     = 0;
+          int snr   = 0;
+          try { svNum = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 1]); } catch (Exception pex) {}
+          try { elev  = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 2]); } catch (Exception pex) {}
+          try { z     = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 3]); } catch (Exception pex) {}
+          try { snr   = Integer.parseInt(sa[DATA_OFFSET + ((indexInSentence - 1) * NB_DATA) + 4]); } catch (Exception pex) {}
           SVData svd = new SVData(svNum, elev, z, snr);
           if (gsvMap != null) gsvMap.put(svNum, svd);          
 //        System.out.println("SV #" + rnkInView + ", SV:" + svNum + " H:"+ elev + ", Z:" + z + ", snr:" + snr);

@@ -161,10 +161,13 @@ public class CustomSerialReader
             {
               try
               {
-                newData = theInput.read();
-                if (newData == -1)
-                  break;
-                inputBuffer.append((char) newData);
+                if (theInput != null)
+                {
+                  newData = theInput.read();
+                  if (newData == -1)
+                    break;
+                  inputBuffer.append((char) newData);
+                }
               }
               catch (IOException ex)
               {
@@ -185,8 +188,10 @@ public class CustomSerialReader
             ex.printStackTrace();                  
           }
         }
-        else
-          System.out.println("Stop Reading serial port.");
+//        else
+//        {
+//          System.out.println("Stop Reading serial port.");
+//        }
       default:
         break;
     }
