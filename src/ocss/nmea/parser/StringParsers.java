@@ -17,7 +17,11 @@ import user.util.GeomUtil;
 
 public class StringParsers 
 {
-  /* TASK Implement the following:
+  /* 
+   * Generic form is
+   * $<talker ID><sentence ID,>[parameter 1],[parameter 2],...[<*checksum>]<CR><LF>
+   * 
+   * TASK Implement the following:
    * 
    * MTA Air Temperature
    * MDW Surface Wind, direction and velocity
