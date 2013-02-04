@@ -1,24 +1,20 @@
 package ocss.nmea.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ocss.nmea.api.NMEAEvent;
-import ocss.nmea.api.NMEAListener;
-import ocss.nmea.api.NMEAException;
 
 /**
  * A Controller.
  * This class is final, and can be used as it is.
- * 
+ *
  * @see ocss.nmea.api.NMEAReader
  * @see ocss.nmea.api.NMEAClient
  * @see ocss.nmea.api.NMEAEvent
  * @see ocss.nmea.api.NMEAException
- * 
+ *
  * @version 1.0
  * @author Olivier Le Diouris
- * 
+ *
  */
 public final class NMEAParser extends Thread
 {
@@ -26,13 +22,13 @@ public final class NMEAParser extends Thread
   private String[] nmeaSentence = null;
 
   private String nmeaStream = "";
-  private final static long MAX_STREAM_SIZE = 2048;
-  public final static String WINDOWS_NMEA_EOS = new String(new char[] {0x0A, 0x0D}); // "\r\n"; 
+  private final static long  MAX_STREAM_SIZE = 2048;
+  public final static String STANDARD_NMEA_EOS = new String(new char[] {0x0A, 0x0D}); // "\r\n"; 
   public final static String LINUX_NMEA_EOS = "\n";
   
-  private static String NMEA_EOS = WINDOWS_NMEA_EOS;
+  private static String NMEA_EOS = "\n"; // STANDARD_NMEA_EOS;  // No, this is not a mistake.
   
-  private transient List<NMEAListener> NMEAListeners = null; // new ArrayList(2);
+  private List<NMEAListener> NMEAListeners = null; // new ArrayList(2);
 
   NMEAParser instance = null;
   /**
@@ -50,13 +46,17 @@ public final class NMEAParser extends Thread
         {
 //        System.out.println("Receieved Data:" + e.getContent());
           nmeaStream += e.getContent();
+          // TODO Broadcast that
+          
           // Send to parser
-          String s = null;
+          String s = "";
           try
           {
-            while ((s = instance.detectSentence()) != null)
+            while (s != null)
             {
-              instance.fireDataDetected(new NMEAEvent(this, s));
+              s = instance.detectSentence();
+              if (s != null)
+                instance.fireDataDetected(new NMEAEvent(this, s));
             }
           }
           catch (NMEAException ne)
@@ -72,13 +72,14 @@ public final class NMEAParser extends Thread
   public void setNmeaPrefix(String s)
   { this.nmeaPrefix = s; }
 
-  public void setEOS(String str) // TODO Static ?
+  public void setEOS(String str)
   { NMEA_EOS = str; }
+  
   public static String getEOS()
   { 
-    NMEA_EOS = WINDOWS_NMEA_EOS;
-    if (System.getProperty("os.name").toUpperCase().contains("LINUX"))
-      NMEA_EOS = LINUX_NMEA_EOS;
+//  NMEA_EOS = STANDARD_NMEA_EOS;
+//  if (System.getProperty("os.name").toUpperCase().contains("LINUX"))
+//    NMEA_EOS = LINUX_NMEA_EOS;
     return NMEA_EOS; 
   }
   
@@ -147,7 +148,8 @@ public final class NMEAParser extends Thread
           // The stream should here begin with $XX
           if (nmeaStream.length() > 6) // "$" + prefix + XXX
           {
-            if ((endIdx = nmeaStream.indexOf(NMEA_EOS)) > -1)
+            endIdx = nmeaStream.indexOf(NMEA_EOS);
+            if (endIdx > -1)
             {        
               if (nmeaSentence != null)
               {
@@ -188,7 +190,7 @@ public final class NMEAParser extends Thread
         {
           System.err.println("Oooch!");
           e.printStackTrace();
-          System.out.println("nmeaStream.length = " + nmeaStream.length() + ", Stream:[" + nmeaStream + "]");
+          System.err.println("nmeaStream.length = " + nmeaStream.length() + ", Stream:[" + nmeaStream + "]");
         }
       } // End of infinite loop
     }
