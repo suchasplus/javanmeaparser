@@ -44,7 +44,7 @@ public class CustomClient extends NMEAClient
           customClient.stopDataRead();
         }
       });    
-    customClient.setEOS("\n");
+    customClient.setEOS("\n"); // TASK Sure?
     customClient.initClient();
 //  customClient.setReader(new CustomReader(customClient.getListeners()));
     customClient.setReader(new CustomSerialReader(customClient.getListeners(), commPort));
