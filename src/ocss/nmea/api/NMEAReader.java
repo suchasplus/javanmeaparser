@@ -1,5 +1,7 @@
 package ocss.nmea.api;
 
+import coreutilities.Utilities;
+
 import java.util.List;
 
 /**
@@ -83,7 +85,8 @@ public abstract class NMEAReader extends Thread
 
   public void run()
   {
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":Reader Running");
+    if (Utilities.thisClassVerbose(this.getClass())) // ocss.nmea.api.NMEAReader
+      System.out.println(this.getClass().getName() + ":Reader Running");
     try { read(); }
     catch (Exception ex)
     {
