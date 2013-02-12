@@ -117,7 +117,7 @@ AIS Message type 2:
     if (!dataElement[NB_SENTENCES_POS].equals("1")) // More than 1 message: Not Managed
       return null; 
                
-    AISRecord aisRecord = new AISRecord(); 
+    AISRecord aisRecord = new AISRecord(System.currentTimeMillis()); 
     String aisData = dataElement[AIS_DATA_POS];
 //  System.out.println("[" + aisData + "]");
     String binString = encodedAIStoBinaryString(aisData);
@@ -134,6 +134,11 @@ AIS Message type 2:
          {
            intValue = - Integer.parseInt(neg(binStr), 2);
          }
+      }
+      else if (a.equals(AISData.ROT))
+      {
+        if (intValue > 128)
+          intValue = - Integer.parseInt(neg(binStr), 2);
       }
       setAISData(a, aisRecord, intValue);
       if (verbose)
@@ -224,7 +229,14 @@ AIS Message type 2:
     private float cog;
     private int hdg;
     private int utc;
+    private long recordTimeStamp;
 
+    public AISRecord(long now)
+    {
+      super();
+      recordTimeStamp = now;
+    }
+    
     public void setMessageType(int messageType)
     {
       this.messageType = messageType;
@@ -345,7 +357,7 @@ AIS Message type 2:
       return utc;
     }
     
-    public String decodeStatus(int stat)
+    public static String decodeStatus(int stat)
     {
       String status = "";
       switch (stat)
@@ -410,6 +422,16 @@ AIS Message type 2:
             ", Pos:" + latitude + "/" + longitude + " (Acc:" + posAcc + "), COG:" + cog + ", SOG:" + sog + ", HDG:" + hdg;
       
       return str;
+    }
+
+    public void setRecordTimeStamp(long recordTimeStamp)
+    {
+      this.recordTimeStamp = recordTimeStamp;
+    }
+
+    public long getRecordTimeStamp()
+    {
+      return recordTimeStamp;
     }
   }
   
