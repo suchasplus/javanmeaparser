@@ -688,6 +688,7 @@ public class StringParsers
           local.set(Calendar.HOUR_OF_DAY, h);  
           local.set(Calendar.MINUTE, mn);
           local.set(Calendar.SECOND, (int)Math.round(sec));
+          local.set(Calendar.MILLISECOND, 0);
           try { date = local.getTime(); } catch (Exception ex) {}
         }
       }
@@ -978,6 +979,7 @@ public class StringParsers
           local.set(Calendar.HOUR_OF_DAY, h);  
           local.set(Calendar.MINUTE, m);
           local.set(Calendar.SECOND, (int)Math.round(sec));
+          local.set(Calendar.MILLISECOND, 0);
           if (data[9].length() > 0)
           {
             int d = 1;
@@ -1674,6 +1676,10 @@ public class StringParsers
     System.out.println("- Sat in View:" + gsa.getSvArray().size());
     
     System.out.println("Test:" + GSA.ModeOne.Auto);
+    
+    str = "$IIRMC,022136,A,3730.092,N,12228.864,W,00.0,181,141113,15,E,A*1C";
+    rmc = parseRMC(str);
+    System.out.println("-> RMC date:" + rmc.getRmcDate().toString() + " (" + rmc.getRmcDate().getTime() + ")");
     
     System.out.println("Done");
   }    
