@@ -31,7 +31,8 @@ dependencies {
   testCompile 'junit:junit:4.8.2'
   compile 'comm:rxtx:1.0'
 //compile project(':GeomUtil')
-//compile 'oliv.cool.stuff:GeomUtil:1.0'
+//compile 'oliv.cool.stuff:CoreUtilities:1.0'
+  compile project(':CoreUtilities')
 }
 
 task run(type: JavaExec, dependsOn: build, description: "Run some tests. No GUI, bulk output.") {
