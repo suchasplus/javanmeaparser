@@ -98,6 +98,21 @@ public class StringParsers
     return null;
   }
   
+  public static String GSVtoString( Map<Integer, SVData> hm)
+  {
+    String str = "";
+    if (hm != null)
+    {
+      str += (hm.size() + " Satellites in view:");
+      for (Integer sn : hm.keySet())
+      {
+        SVData svd = hm.get(sn);
+        str += ("Satellite #" + svd.getSvID() + " Elev:" + svd.getElevation() + ", Z:" + svd.getAzimuth() + ", SNR:" + svd.getSnr() + "db. ");
+      }
+    }
+    return str.trim(); 
+  }
+  
   public static List<Object> parseGGA(String data)
   {
     final int KEY_POS = 0;
