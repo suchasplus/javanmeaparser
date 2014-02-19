@@ -978,7 +978,7 @@ public class StringParsers
         rmc = new RMC();
         String[] data = str.substring(0, str.indexOf("*")).split(",");
         if (data[2].equals("V")) // Void
-          return null;
+          return rmc;
         if (data[1].length() > 0) // Time and Date
         {
           double utc = 0D;
@@ -1696,6 +1696,10 @@ public class StringParsers
     rmc = parseRMC(str);
     System.out.println("-> RMC date:" + rmc.getRmcDate().toString() + " (" + rmc.getRmcDate().getTime() + ")");
     
+    str = "$IIRMC,144432.086,V,,,,,00.0,0.00,190214,,,N*48";
+    rmc = parseRMC(str);
+    System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")");
+
     System.out.println("Done");
   }    
 }
