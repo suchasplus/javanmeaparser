@@ -1698,7 +1698,15 @@ public class StringParsers
     
     str = "$IIRMC,144432.086,V,,,,,00.0,0.00,190214,,,N*48";
     rmc = parseRMC(str);
-    System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")");
+    try { System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")"); }
+    catch (Exception ex) { ex.printStackTrace(); }
+    
+    str = "$PGACK,103*40";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    str = "$PGTOP,11,2*6E";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    str = "$PMTK010,002*2D";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
 
     System.out.println("Done");
   }    
