@@ -23,7 +23,6 @@ public class StringParsers
    * 
    * TASK Implement the following:
    * 
-   * MTA Air Temperature
    * MDW Surface Wind, direction and velocity
    * VDR Set and Drift
    * VPW Device measured velocity parallel true wind
@@ -33,6 +32,99 @@ public class StringParsers
 
   private static Map<Integer, SVData> gsvMap = null;
   
+  public static List<StringGenerator.XDRElement> parseXDR(String data)
+  {
+    List<StringGenerator.XDRElement> lxdr = new ArrayList<StringGenerator.XDRElement>();
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    if ((sa.length - 1) % 4 != 0) // Mismatch
+    {
+      throw new RuntimeException("XDH String invalid (" + sa.length + " element(s) found, expected a multiple of 4)");
+    }
+    for (int i=1; i<sa.length; i+=4)
+    {
+      String type = sa[i];
+      String valStr = sa[i+1];
+      String unit = sa[i+2];
+      String tname = sa[i+3];
+      // Valid unit and type
+      boolean foundType = false;
+      boolean foundUnit = false;
+      for (StringGenerator.XDRTypes xdrt : StringGenerator.XDRTypes.values())
+      {
+        if (xdrt.type().equals(type))  
+        {
+          foundType = true;
+          if (xdrt.unit().equals(unit))
+          {
+            foundUnit = true;
+            try
+            {
+              double value = Double.parseDouble(valStr);
+              lxdr.add(new StringGenerator.XDRElement(xdrt, value, tname));
+            }
+            catch (NumberFormatException nfe)
+            {
+              throw new RuntimeException(nfe);
+            }
+            break;
+          }
+        }
+      }
+      if (!foundType)
+      {
+        throw new RuntimeException("Unknown XDH type [" + type + "]");
+      }
+      if (!foundUnit)
+      {
+        throw new RuntimeException("Invalid XDH unit [" + unit + "] for type [" + type + "]");        
+      }
+    }
+    
+    return lxdr;
+  }
+  
+  /**
+   *
+   * @param data
+   * @return Pressure in Mb / hPa
+   */
+  public static double parseMMB(String data)
+  {
+    /*
+     * Structure is $IIMMB,29.9350,I,1.0136,B*7A
+     *                     |       | |      |
+     *                     |       | |      Bars
+     *                     |       | Pressure in Bars
+     *                     |       Inches of Hg
+     *                     Pressure in inches of Hg
+     */
+    double d = 0d;
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    try 
+    { 
+      d = Double.parseDouble(sa[3]); 
+      d *= 1000d;
+    } catch (NumberFormatException nfe) {}
+    return d;
+  }
+  
+  public static double parseMTA(String data)
+  {
+    /*
+     * Structure is $IIMTA,020.5,C*30
+     *                     |     |
+     *                     |     Celcius
+     *                     Temperature in Celcius
+     */
+    double d = 0d;
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    try 
+    { 
+      d = Double.parseDouble(sa[1]); 
+    } catch (NumberFormatException nfe) {}
+    return d;
+  }
+    
   public static Map<Integer, SVData> parseGSV(String data)
   {
     String s = data.trim();
@@ -191,8 +283,7 @@ public class StringParsers
     al.add(nbsat);
     
     return al;
-  }
-  
+  }  
   
   public static GSA parseGSA(String data)
   {
@@ -1699,7 +1790,7 @@ public class StringParsers
     str = "$IIRMC,144432.086,V,,,,,00.0,0.00,190214,,,N*48";
     rmc = parseRMC(str);
     try { System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")"); }
-    catch (Exception ex) { ex.printStackTrace(); }
+    catch (Exception ex) { System.out.println("Expected:" + ex.toString()); }
     
     str = "$PGACK,103*40";
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
@@ -1707,7 +1798,25 @@ public class StringParsers
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
     str = "$PMTK010,002*2D";
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    
+    str = "$IIMMB,29.9350,I,1.0136,B*78";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    double pressure = parseMMB(str);
+    System.out.println(" ==> " + pressure + " hPa");
 
+    str = "$IIMTA,20.5,C*02";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    double temp = parseMTA(str);
+    System.out.println(" ==> " + temp + "\272");
+    
+    str = "$IIXDR,P,1.0136,B,BMP180,C,15.5,C,BMP180*58";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    List<StringGenerator.XDRElement> xdr = parseXDR(str);
+    for (StringGenerator.XDRElement x : xdr)
+    {
+      System.out.println(" => " + x.toString());
+    }
+    
     System.out.println("Done");
   }    
 }
