@@ -20,6 +20,8 @@ public class StringGenerator
   private final static NumberFormat PERCENT_FMT = new DecimalFormat("##0");
   private final static NumberFormat DIR_FMT = new DecimalFormat("##0");
   private final static NumberFormat SPEED_FMT = new DecimalFormat("#0.0");
+
+  private final static NumberFormat PRMSL_FMT_MDA = new DecimalFormat("##0.000");
 /*
  * Common talker IDs
   |================================================================
@@ -136,29 +138,45 @@ public class StringGenerator
   
   public static String generateXDR(String devicePrefix, XDRElement first, XDRElement... next) 
   {
+    int nbDevice = 0;
     String xdr = devicePrefix + "XDR,";
+    NumberFormat nf = null;
     xdr += (first.getTypeNunit().type() + ",");
-    xdr += (Double.toString(first.getValue()) + ",");
+    if (first.getTypeNunit().equals(XDRTypes.PRESSURE_B))
+      nf = PRMSL_FMT;
+    if (first.getTypeNunit().equals(XDRTypes.PRESSURE_P))
+      nf = PRMSL_FMT_2;
+    if (first.getTypeNunit().equals(XDRTypes.TEMPERATURE))
+      nf = TEMP_FMT;
+//  System.out.println("XDR Format for [" + first.getTypeNunit() + "] is " + (nf == null?"":"not ") + "null");
+    if (nf != null)
+      xdr += (nf.format(first.getValue()) + ",");
+    else
+      xdr += (Double.toString(first.getValue()) + ",");
     xdr += (first.getTypeNunit().unit() + ",");
-    xdr += (first.getTransducerName());
+ // xdr += (first.getTransducerName());
+    xdr += (Integer.toString(nbDevice++));
     
     for (XDRElement e : next)
     {
-      NumberFormat nf = null;
+      nf = null;
       // TASK More formats
-      if (e.getTypeNunit().type().equals(XDRTypes.PRESSURE_B))
+      if (e.getTypeNunit().equals(XDRTypes.PRESSURE_B))
         nf = PRMSL_FMT;
-      if (e.getTypeNunit().type().equals(XDRTypes.PRESSURE_P))
+      if (e.getTypeNunit().equals(XDRTypes.PRESSURE_P))
         nf = PRMSL_FMT_2;
-      if (e.getTypeNunit().type().equals(XDRTypes.TEMPERATURE))
+      if (e.getTypeNunit().equals(XDRTypes.TEMPERATURE))
         nf = TEMP_FMT;
       xdr += ("," + e.getTypeNunit().type() + ",");
+//    System.out.println("XDR Format for [" + e.getTypeNunit() + "] is " + (nf == null?"":"not ") + "null");
       if (nf != null)
         xdr += (nf.format(e.getValue()) + ",");
       else
         xdr += (Double.toString(e.getValue()) + ",");
       xdr += (e.getTypeNunit().unit() + ",");
-      xdr += (e.getTransducerName());
+//    xdr += (e.getTransducerName());
+      xdr += (Integer.toString(nbDevice++));
+
     }
     // Checksum
     int cs = StringParsers.calculateCheckSum(xdr);
@@ -193,17 +211,51 @@ public class StringGenerator
                                                         double windSpeedInKnots)
   {
     String mda = devicePrefix + "MDA,";
-    mda+= (PRMSL_FMT.format(pressureInhPa / Pressure.HPA_TO_INHG) + ",I,");
-    mda+= (PRMSL_FMT.format(pressureInhPa / 1000) + ",B,");
-    mda+= (TEMP_FMT.format(airTempInDegrees) + ",C,");
-    mda+= (TEMP_FMT.format(waterTempInDegrees) + ",C,");
-    mda+= (PERCENT_FMT.format(relHumidity) + ",");
-    mda+= (PERCENT_FMT.format(absHumidity) + ",");
-    mda+= (DIR_FMT.format(dewPointInCelcius) + ",C,");
-    mda+= (TEMP_FMT.format(windDirTrue) + ",T,");
-    mda+= (TEMP_FMT.format(windDirMag) + ",M,");
-    mda+= (SPEED_FMT.format(windSpeedInKnots) + ",N,");
-    mda+= (SPEED_FMT.format(windSpeedInKnots * 1.852 / 3.6) + ",M");
+    if (pressureInhPa != -Double.MAX_VALUE)
+    {
+      mda+= (PRMSL_FMT_MDA.format(pressureInhPa / Pressure.HPA_TO_INHG) + ",I,");
+      mda+= (PRMSL_FMT_MDA.format(pressureInhPa / 1000) + ",B,");
+    }
+    else
+    {
+      mda += ",,,,";
+    }
+    if (airTempInDegrees != -Double.MAX_VALUE)
+      mda+= (TEMP_FMT.format(airTempInDegrees) + ",C,");
+    else
+      mda += ",,";
+    if (waterTempInDegrees != -Double.MAX_VALUE)
+      mda+= (TEMP_FMT.format(waterTempInDegrees) + ",C,");
+    else
+      mda += ",,";
+    if (relHumidity != -Double.MAX_VALUE)
+      mda+= (PERCENT_FMT.format(relHumidity) + ",");
+    else
+      mda += ",";
+    if (absHumidity != -Double.MAX_VALUE)
+      mda+= (PERCENT_FMT.format(absHumidity) + ",");
+    else
+      mda += ",";
+    if (dewPointInCelcius != -Double.MAX_VALUE)
+      mda+= (DIR_FMT.format(dewPointInCelcius) + ",C,");
+    else
+      mda += ",,";
+    if (windDirTrue != -Double.MAX_VALUE)
+      mda+= (TEMP_FMT.format(windDirTrue) + ",T,");
+    else
+      mda += ",,";
+    if (windDirTrue != -Double.MAX_VALUE)
+      mda+= (TEMP_FMT.format(windDirMag) + ",M,");
+    else
+      mda += ",,";
+    if (windSpeedInKnots != -Double.MAX_VALUE)
+    {
+      mda+= (SPEED_FMT.format(windSpeedInKnots) + ",N,");
+      mda+= (SPEED_FMT.format(windSpeedInKnots * 1.852 / 3.6) + ",M");
+    }
+    else
+      mda += ",,,";
+        
     int cs = StringParsers.calculateCheckSum(mda);
     mda += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));
     
@@ -351,7 +403,28 @@ public class StringGenerator
     xdr = generateXDR("II", new XDRElement(XDRTypes.PRESSURE_B, 1.0136, "BMP180"), new XDRElement(XDRTypes.TEMPERATURE, 15.5, "BMP180"));
     System.out.println("Generated XDR:" + xdr);
     
+    System.out.println("Generating MDA...");
     String mda = generateMDA("II", 1013.25, 25, 12, 75, 50, 9, 270, 255, 12);
+    if (StringParsers.validCheckSum(mda))
+      System.out.println("Valid!");
+    else
+      System.out.println("Invalid...");
     System.out.println("Generated MDA:" + mda);
+    
+    double noValue = -Double.MAX_VALUE;
+    mda = generateMDA("WI", 1009, 31.7, noValue, noValue, noValue, noValue, 82.3, 72.3, 7.4);
+    if (StringParsers.validCheckSum(mda))
+      System.out.println("Valid!");
+    else
+      System.out.println("Invalid...");
+    System.out.println("Generated MDA:" + mda);
+    
+    System.out.println("Another one...");
+    mda = "$WIMDA,29.796,I,1.009,B,31.7,C,,,,,,,82.3,T,72.3,M,7.4,N,3.8,M*23";
+    System.out.println("Copied MDA   :" + mda);
+    if (StringParsers.validCheckSum(mda))
+      System.out.println("Valid!");
+    else
+      System.out.println("Invalid...");
   }
 }

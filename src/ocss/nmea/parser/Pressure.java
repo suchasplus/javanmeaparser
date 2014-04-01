@@ -9,7 +9,7 @@ public class Pressure implements Serializable
   private double pressure = 0d; // In hPa
   private static final String H_PA = " hPa";
   private static final String MM_HG = " mmHg";
-  private static final String IN_HG = "'Hg";
+  private static final String IN_HG = "\"Hg";
   private static final String PSI = " psi";
   private static final String ATM = " Atm";
   private static final DecimalFormat FMT = new DecimalFormat("###0.0");
