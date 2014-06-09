@@ -125,6 +125,26 @@ public class StringParsers
     return d;
   }
     
+  public static float parseBAT(String data)
+  {
+    /*
+     * NOT STANDARD !!!
+     * Structure is $XXBAT,14.82,V,1011,98*20
+     *                     |     | |    |    
+     *                     |     | |    Volume [0..100]    
+     *                     |     | ADC [0..1023]
+     *                     |     Volts
+     *                     Voltage
+     */
+    float v = -1f;
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    try 
+    { 
+      v = Float.parseFloat(sa[1]); 
+    } catch (NumberFormatException nfe) {}
+    return v;
+  }
+        
   public static Map<Integer, SVData> parseGSV(String data)
   {
     String s = data.trim();
