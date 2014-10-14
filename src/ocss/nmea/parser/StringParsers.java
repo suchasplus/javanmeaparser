@@ -145,6 +145,23 @@ public class StringParsers
     return v;
   }
         
+  public static long parseSTD(String data)
+  {
+    /*
+     * NOT STANDARD !!!
+     * Structure is $XXSTD,77672*5C
+     *                     |
+     *                     Age in ms
+     */ 
+    long age = 0L;
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    try 
+    { 
+      age = Long.parseLong(sa[1]); 
+    } catch (NumberFormatException nfe) {}    
+    return age;
+  }
+  
   public static Map<Integer, SVData> parseGSV(String data)
   {
     String s = data.trim();
