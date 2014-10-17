@@ -151,7 +151,7 @@ public class StringParsers
      * NOT STANDARD !!!
      * Structure is $XXSTD,77672*5C
      *                     |
-     *                     Age in ms
+     *                     Cache Age in ms
      */ 
     long age = 0L;
     String sa[] = data.substring(0, data.indexOf("*")).split(",");
