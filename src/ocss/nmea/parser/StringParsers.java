@@ -252,6 +252,7 @@ public class StringParsers
     final int LONG_SGN_POS = 5;
     final int GPS_Q_POS = 6;
     final int NBSAT_POS = 7;
+    final int ANTENNA_ALT = 9;
     
     ArrayList<Object> al = null;
     String s = data.trim();
@@ -314,10 +315,16 @@ public class StringParsers
 //  System.out.println(new GeoPos(lat, lng).toString());
 //  System.out.println("Done.");
     
-    al = new ArrayList<Object>(3);
+    double alt = 0;
+    try 
+    { alt = parseNMEADouble(sa[ANTENNA_ALT]); } 
+    catch (Exception ex) {}
+    
+    al = new ArrayList<Object>(4);
     al.add(new UTC(h, m, sec));
     al.add(new GeoPos(lat, lng));
     al.add(nbsat);
+    al.add(alt);
     
     return al;
   }  
@@ -1792,18 +1799,22 @@ public class StringParsers
     utc = (UTC)al.get(0);
     GeoPos pos = (GeoPos)al.get(1);
     Integer nbs = (Integer)al.get(2);
+    Double alt = (Double)al.get(3);
     System.out.println("UTC:" + utc.toString());
     System.out.println("Pos:" + pos.toString());
     System.out.println(nbs.intValue() + " Satellite(s) in use");
+    System.out.println("Altitude:" + alt);
     
     str = "$GPGGA,183334.000,4047.7039,N,07247.9939,W,1,6,1.61,2.0,M,-34.5,M,,*6B";
     al = parseGGA(str);
     utc = (UTC)al.get(0);
     pos = (GeoPos)al.get(1);
     nbs = (Integer)al.get(2);
+    alt = (Double)al.get(3);
     System.out.println("UTC:" + utc.toString());
     System.out.println("Pos:" + pos.toString());
     System.out.println(nbs.intValue() + " Satellite(s) in use");
+    System.out.println("Altitude:" + alt);
 
     System.out.println("------- GSA -------");
     str = "$GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35";
