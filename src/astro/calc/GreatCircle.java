@@ -26,6 +26,10 @@ public final class GreatCircle
     dLoxo = 0.0D;
   }
 
+  /**
+   * Coordinates in radians
+   * @param p
+   */
   public static void setStart(GeoPoint p)
   {
     start = p;
@@ -37,6 +41,10 @@ public final class GreatCircle
                          Math.toRadians(p.getG()));
   }
 
+  /**
+   * Coordinates in radians
+   * @param p
+   */
   public static void setArrival(GeoPoint p)
   {
     arrival = p;
@@ -337,7 +345,9 @@ public final class GreatCircle
   }
 
   /**
+   * Rhumbline aka loxodrome
    * Points coordinates in Radians
+   * returned value in radians
    */
   public static double calculateRhumLineRoute(GeoPoint f, GeoPoint t)
   {
