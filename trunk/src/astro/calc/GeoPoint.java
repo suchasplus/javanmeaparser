@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import user.util.GeomUtil;
 
-@SuppressWarnings("serial")
 public final class GeoPoint
         implements Serializable
 {
@@ -57,8 +56,7 @@ public final class GeoPoint
     gc.setStart(new GeoPoint(Math.toRadians(this.getL()), Math.toRadians(this.getG())));
     gc.setArrival(new GeoPoint(Math.toRadians(target.getL()), Math.toRadians(target.getG())));
     gc.calculateGreatCircle(1);
-    double d = Math.toDegrees(gc.getDistance());
-    
+    double d = Math.toDegrees(gc.getDistance());    
     return d * 60D;
   }
   
@@ -96,6 +94,16 @@ public final class GeoPoint
     return str;
   }
   
+  public GeoPoint degreesToRadians()
+  {
+    return new GeoPoint(Math.toRadians(this.getL()), Math.toRadians(this.getG()));
+  }
+  
+  public GeoPoint radiansToDegrees()
+  {
+    return new GeoPoint(Math.toDegrees(this.getL()), Math.toDegrees(this.getG()));
+  }
+  
   public static void main(String[] args)
   {
     GeoPoint p1 = new GeoPoint(37, -122);
@@ -118,7 +126,6 @@ public final class GeoPoint
     System.out.println("-----------------------------------");
     
     long before = System.currentTimeMillis();
-    @SuppressWarnings("unused")
     double d = 0D;
     for (int i=0; i<10000; i++)
       d = p1.loxoDistanceBetween(p2);
@@ -139,5 +146,14 @@ public final class GeoPoint
     after = System.currentTimeMillis();
     System.out.println("10000 GC   :" + Long.toString(after - before) + " ms.");
     System.out.println("-----------------------------------");
+    
+    p1 = new GeoPoint(GeomUtil.sexToDec("38", "31.44"), - GeomUtil.sexToDec("128", "17.95"));
+    p2 = new GeoPoint(GeomUtil.sexToDec("38", "33.99"), - GeomUtil.sexToDec("128", "36.98"));
+    System.out.println("Distance between " + p1.toString() + " and " + p2.toString() + ": " + p1.gcDistanceBetween(p2) + " nm");
+    
+    System.out.println("----------------------");
+    p1 = new GeoPoint(20.02, -155.85);
+    p2 = new GeoPoint(19.98, -155.89);
+    System.out.println("Distance between " + p1.toString() + " and " + p2.toString() + ": " + p1.gcDistanceBetween(p2) + " nm");
   }  
 }
