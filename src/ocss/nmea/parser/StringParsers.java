@@ -1865,6 +1865,12 @@ public class StringParsers
       System.out.println(" => " + x.toString());
     }
     
+    str = "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A";
+    rmc = parseRMC(str);
+    try { System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")"); }
+    catch (Exception ex) { System.out.println("Expected:" + ex.toString()); }
+    
+    
     System.out.println("Done");
   }    
 }
