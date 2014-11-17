@@ -26,7 +26,7 @@ public class StringParsers
    * MDW Surface Wind, direction and velocity
    * VDR Set and Drift
    * VPW Device measured velocity parallel true wind
-   * VWT True Wind relative bearing and velocity
+   * VWT True Wind relative bearing and velocity -> Complete
    * ZLZ Time of Day
    */
 
@@ -486,12 +486,12 @@ public class StringParsers
     }
     return temp;
   }
-  
+    
+  public static final int TRUE_WIND     = 0;
+  public static final int APPARENT_WIND = 1;
   // AWA, AWS (R), possibly TWA, TWS (T)
   public static Wind parseMWV(String data)
   {
-    final int TRUE_WIND     = 0;
-    final int APPARENT_WIND = 1;
     int flavor = -1;
     
     String s = data.trim();
@@ -554,6 +554,32 @@ public class StringParsers
 //    e.printStackTrace();
     }
     return aw;
+  }
+  
+  /*
+   * $--VWT,x.x,a,x.x,N,x.x,M,x.x,K*hh<CR><LF>
+   *        |     |     |     |  
+   *        |     |     |     Wind speed, Km/Hr
+   *        |     |     Wind speed, meters/second
+   *        |     Calculated wind Speed, knots
+   *        Calculated wind angle relative to the vessel, 0 to 180, left/right L/R of vessel heading
+   */
+  public static Wind parseVWT(String data)
+  {
+    Wind wind = null;
+    String s = data.trim();
+    if (s.length() < 6)
+      return null;
+    try
+    {
+      // TODO Implement?
+    }
+    catch (Exception e)
+    {
+      System.err.println("parseVWT for " + s + ", " + e.toString());
+//    e.printStackTrace();
+    }
+    return wind;
   }
   
   public static String parseMWVtoString(String s)

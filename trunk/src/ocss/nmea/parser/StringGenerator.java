@@ -22,6 +22,10 @@ public class StringGenerator
   private final static NumberFormat SPEED_FMT = new DecimalFormat("#0.0");
 
   private final static NumberFormat PRMSL_FMT_MDA = new DecimalFormat("##0.000");
+  
+  private final static double KNOTS_TO_KMH = 1.852;
+  private final static double KNOTS_TO_MS  = 1.852 * 0.27777777;
+  
 /*
  * Common talker IDs
   |================================================================
@@ -291,6 +295,36 @@ public class StringGenerator
     return "$" + mta;
   }
   
+  /* $WIMWD,<1>,<2>,<3>,<4>,<5>,<6>,<7>,<8>*hh
+  +     *
+  +     * NMEA 0183 standard Wind Direction and Speed, with respect to north.
+  +     *
+  +     * <1> Wind direction, 0.0 to 359.9 degrees True, to the nearest 0.1 degree
+  +     * <2> T = True
+  +     * <3> Wind direction, 0.0 to 359.9 degrees Magnetic, to the nearest 0.1 degree
+  +     * <4> M = Magnetic
+  +     * <5> Wind speed, knots, to the nearest 0.1 knot.
+  +     * <6> N = Knots
+  +     * <7> Wind speed, meters/second, to the nearest 0.1 m/s.
+  +     * <8> M = Meters/second
+  +     */
+  public static String generateMWD(String devicePrefix, double tdir, double knts, double dec)
+  {
+    String mwd = devicePrefix + "MWD,";
+    mwd += (OG_FMT.format(tdir) + ",T,");
+    double mDir = tdir - dec;
+    if (mDir < 0) mDir += 360;
+    if (mDir > 360) mDir -= 360;
+    mwd += (OG_FMT.format(mDir) + ",M,");
+    mwd += (SPEED_FMT.format(knts) + ",N,");
+    mwd += (SPEED_FMT.format(knts * KNOTS_TO_MS) + ",M");
+    // Checksum
+    int cs = StringParsers.calculateCheckSum(mwd);
+    mwd += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));
+    
+    return "$" + mwd;
+  }
+  
   public static String generateRMC(String devicePrefix, Date date, double lat, double lng, double sog, double cog, double d)
   {
     String rmc = devicePrefix + "RMC,";
@@ -325,14 +359,35 @@ public class StringGenerator
   
   public static String generateMWV(String devicePrefix, double aws, int awa)
   {
+    return generateMWV(devicePrefix, aws, awa, StringParsers.APPARENT_WIND);
+  }
+  
+  public static String generateMWV(String devicePrefix, double ws, int wa, int flavor)
+  {
+    if (wa < 0)
+      wa = 360 + wa;
     String mwv = devicePrefix + "MWV,";
-    mwv += (OG_FMT.format(awa) + ",R,");
-    mwv += (OG_FMT.format(aws) + ",N,A");
+    mwv += (OG_FMT.format(wa) + (flavor == StringParsers.APPARENT_WIND ? ",R," : ",T,"));
+    mwv += (OG_FMT.format(ws) + ",N,A");
     // Checksum
     int cs = StringParsers.calculateCheckSum(mwv);
     mwv += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));
     
     return "$" + mwv;
+  }
+  
+  public static String gerenateVWT(String devicePrefix, double tws, double twa)
+  {
+    String vwt = devicePrefix + "VWT,";
+    vwt += (SPEED_FMT.format(Math.abs(twa)) + "," + (twa > 0 ? "R" : "L") + ",");
+    vwt += (SPEED_FMT.format(tws) + ",N,");
+    vwt += (SPEED_FMT.format(tws * KNOTS_TO_MS) + ",M,");
+    vwt += (SPEED_FMT.format(tws * KNOTS_TO_KMH) + ",K");
+    // Checksum
+    int cs = StringParsers.calculateCheckSum(vwt);
+    vwt += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));
+    
+    return "$" + vwt;
   }
   
   public static String generateVHW(String devicePrefix, double bsp, int cc)
@@ -426,5 +481,11 @@ public class StringGenerator
       System.out.println("Valid!");
     else
       System.out.println("Invalid...");
+    
+    String vwt = gerenateVWT("II", 16, 96);
+    System.out.println(vwt);
+    
+    String mwd = generateMWD("II", 289, 20.9, 15.0);
+    System.out.println(mwd);
   }
 }
