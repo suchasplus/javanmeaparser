@@ -295,6 +295,22 @@ public class StringGenerator
     return "$" + mta;
   }
   
+  /*
+   * Set and Drift (current speed and direction)
+   */
+  public static String generateVDR(String devicePrefix, double speed, double dirT, double dirM)
+  {
+    String vdr = devicePrefix + "VDR,";
+    vdr += (SPEED_FMT.format(dirT) + ",T,");
+    vdr += (SPEED_FMT.format(dirM) + ",M,");
+    vdr += (SPEED_FMT.format(speed) + ",N");
+    // Checksum
+    int cs = StringParsers.calculateCheckSum(vdr);
+    vdr += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));
+    
+    return "$" + vdr;
+  }  
+  
   /* $WIMWD,<1>,<2>,<3>,<4>,<5>,<6>,<7>,<8>*hh
   +     *
   +     * NMEA 0183 standard Wind Direction and Speed, with respect to north.

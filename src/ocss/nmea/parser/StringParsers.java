@@ -124,6 +124,30 @@ public class StringParsers
     } catch (NumberFormatException nfe) {}
     return d;
   }
+  
+  public static Current parseVDR(String data)
+  {
+    /* 
+     * Structure is $IIVDR,00.0,T,00.0,M,00.0,N*XX
+     *                     |    | |    | |    |
+     *                     |    | |    | |    Knots
+     *                     |    | |    | Speed
+     *                     |    | |    Mag.
+     *                     |    | Magnetic Dir
+     *                     |    True
+     *                     True Dir
+     */ 
+    Current current = null;
+    String sa[] = data.substring(0, data.indexOf("*")).split(",");
+    try
+    {
+      double speed = Double.parseDouble(sa[5]);
+      float dir =   Float.parseFloat(sa[1]);
+      current = new Current((int)Math.round(dir), speed);
+    }
+    catch (Exception ex) {}
+    return current;
+  }
     
   public static float parseBAT(String data)
   {
