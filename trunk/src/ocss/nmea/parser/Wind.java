@@ -16,6 +16,6 @@ public abstract class Wind implements Serializable
   
   public String toString()
   {
-    return Double.toString(speed) + " knts, " + Integer.toString(angle) + " deg.";
+    return Double.toString(speed) + " kts, " + Integer.toString(angle) + " deg.";
   }
 }
