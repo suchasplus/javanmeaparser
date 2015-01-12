@@ -190,6 +190,8 @@ public class StringGenerator
   }  
 
   /*  
+   * -Double.MAX_VALUE means NO VALUE
+   * 
   $--MDA,x.x,I,x.x,B,x.x,C,x.x,C,x.x,x.x,x.x,C,x.x,T,x.x,M,x.x,N,x.x,M*hh<CR><LF> 
          |   | |   | |   | |   | |   |   |   | |   | |   | |   | |   |
          |   | |   | |   | |   | |   |   |   | |   | |   | |   | +---+- Wind Speed, m/s
@@ -471,11 +473,35 @@ public class StringGenerator
     
     String xdr = generateXDR("II", new XDRElement(XDRTypes.PRESSURE_B, 1.0136, "BMP180"));
     System.out.println("Generated XDR:" + xdr);
-    xdr = generateXDR("II", new XDRElement(XDRTypes.PRESSURE_B, 1.0136, "BMP180"), new XDRElement(XDRTypes.TEMPERATURE, 15.5, "BMP180"));
+    xdr = generateXDR("II", new XDRElement(XDRTypes.PRESSURE_B, 1.0136, "BMP180"), 
+                            new XDRElement(XDRTypes.TEMPERATURE, 15.5, "BMP180"),
+                            new XDRElement(XDRTypes.HUMIDITY, 65.5, "HTU21DF"));
     System.out.println("Generated XDR:" + xdr);
     
     System.out.println("Generating MDA...");
-    String mda = generateMDA("II", 1013.25, 25, 12, 75, 50, 9, 270, 255, 12);
+    String mda = generateMDA("II", 1013.25, // PRMSL
+                                     25,    // AIR TEMP
+                                     12,    // WATER TEMP
+                                     75,    // REL HUMIDITY
+                                     50,    // ABS HUMIDITY
+                                      9,    // DEW POINT (CELCIUS)
+                                    270,    // TWD
+                                    255,    // WIND DIR (MAG) 
+                                     12.0); // TWS
+    if (StringParsers.validCheckSum(mda))
+      System.out.println("Valid!");
+    else
+      System.out.println("Invalid...");
+    System.out.println("Generated MDA:" + mda);
+    mda = generateMDA("II", 1013.25, // PRMSL
+                              25,    // AIR TEMP
+                              12,    // WATER TEMP
+                              75,    // REL HUMIDITY
+                              50,    // ABS HUMIDITY
+               -Double.MAX_VALUE,    // DEW POINT (CELCIUS)
+                             270,    // TWD
+                             255,    // WIND DIR (MAG) 
+                              12.0); // TWS
     if (StringParsers.validCheckSum(mda))
       System.out.println("Valid!");
     else

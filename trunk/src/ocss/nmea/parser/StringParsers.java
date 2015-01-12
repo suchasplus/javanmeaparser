@@ -1894,8 +1894,9 @@ public class StringParsers
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
     str = "$PGTOP,11,2*6E";
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    
     str = "$PMTK010,002*2D";
-    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid........");
     
     str = "$IIMMB,29.9350,I,1.0136,B*78";
     System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
@@ -1914,13 +1915,23 @@ public class StringParsers
     {
       System.out.println(" => " + x.toString());
     }
+    str = "$IIXDR,P,1.0136,B,0,C,15.5,C,1,H,65.5,P,2*6B";
+    System.out.println("[" + str + "] is " + (validCheckSum(str)?"":"not ") + "valid.");
+    xdr = parseXDR(str);
+    for (StringGenerator.XDRElement x : xdr)
+    {
+      System.out.println(" => " + x.toString());
+      if (x.getTypeNunit().equals(StringGenerator.XDRTypes.HUMIDITY))
+      {
+        System.out.println("Humidity:" + x.getValue() + "%");
+      };
+    }
     
     str = "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A";
     rmc = parseRMC(str);
     try { System.out.println("-> RMC date:" + rmc.getRmcDate() + " (" + rmc.getRmcDate().getTime() + ")"); }
     catch (Exception ex) { System.out.println("Expected:" + ex.toString()); }
-    
-    
+
     System.out.println("Done");
   }    
 }
